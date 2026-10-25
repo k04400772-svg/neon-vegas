@@ -153,6 +153,7 @@
         .tower-mult { position: absolute; top: 2px; right: 4px; font-size: 8px; color: var(--text-dim); font-weight: 700; }
         
         .cube-result { text-align: center; font-size: 80px; margin: 20px 0; min-height: 100px; line-height: 1; }
+        .roulette-wheel { text-align: center; font-size: 80px; margin: 20px 0; min-height: 100px; line-height: 1; }
         
         .hidden { display: none !important; }
         .center { text-align: center; }
@@ -166,8 +167,9 @@
         /* Стили для админки */
         .admin-player-row { background: rgba(168,85,247,0.1); padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
         .admin-player-row:active { background: rgba(168,85,247,0.2); }
-        .admin-label { font-size: 14px; font-weight: 700; color: var(--neon-cyan); }
+        .admin-label { font-size: 14px; font-weight: 700; color: var(--neon-cyan); display: flex; justify-content: space-between; }
         .admin-sub { font-size: 11px; color: var(--text-dim); }
+        .admin-balance { color: var(--gold); font-weight: 700; font-size: 12px; }
         .search-input { margin-bottom: 12px; }
     </style>
 </head>
@@ -230,7 +232,7 @@
         cleanupFns: [],
         bonusInterval: null,
         tgId: null,
-        adminScreen: 'list', // list, actions, rules
+        adminScreen: 'list',
         adminSelectedPlayer: null,
         adminPlayers: []
     };
@@ -245,7 +247,6 @@
         
         if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
             state.tgId = Telegram.WebApp.initDataUnsafe.user.id.toString();
-            // АВТОМАТИЧЕСКИЙ НИК ИЗ ТЕЛЕГРАМ
             let tgName = Telegram.WebApp.initDataUnsafe.user.first_name || 'Гость';
             if (!localStorage.getItem(LS.nick)) {
                 localStorage.setItem(LS.nick, tgName);
@@ -373,7 +374,6 @@
                     if (typeof arr === 'string') arr = JSON.parse(arr);
                     if (!Array.isArray(arr)) arr = [];
                     
-                    // Добавляем текущего игрока, если его нет в базе (для теста)
                     if (state.nick && !arr.find(p => p.id === state.tgId)) {
                         arr.push({ id: state.tgId, name: state.nick, balance: state.balance });
                     }
@@ -402,8 +402,8 @@
                     const row = document.createElement('div');
                     row.className = 'admin-player-row';
                     row.innerHTML = `
-                        <div class="admin-label">${p.name || 'Без имени'}</div>
-                        <div class="admin-sub">ID: ${p.id || 'Нет ID'} | Баланс: ${formatNum(p.balance || 0)}</div>
+                        <div class="admin-label"><span>${p.name || 'Без имени'}</span><span class="admin-balance">🪙 ${formatNum(p.balance || 0)}</span></div>
+                        <div class="admin-sub">ID: ${p.id || 'Нет ID'}</div>
                     `;
                     row.addEventListener('click', () => {
                         state.adminSelectedPlayer = p;
@@ -495,8 +495,7 @@
 
     async function saveAdminChanges() {
         try {
-            // Для сохранения изменений обновляем всю базу
-            const top = state.adminPlayers.slice(0, 100); // Сохраняем до 100
+            const top = state.adminPlayers.slice(0, 100);
             await fetch(CLOUD_URL, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
@@ -518,7 +517,8 @@
             { id: 'coin', name: 'МОНЕТКА', emoji: '🪙' },
             { id: 'plinko', name: 'ПЛИНКО', emoji: '⚪' },
             { id: 'tower', name: 'ЛЕСТНИЦА', emoji: '🏗️' },
-            { id: 'cube', name: 'КУБИК', emoji: '🎲' }
+            { id: 'cube', name: 'КУБИК', emoji: '🎲' },
+            { id: 'roulette', name: 'РУЛЕТКА', emoji: '🎰' }
         ];
         const grid = document.createElement('div');
         grid.className = 'games-grid';
@@ -547,7 +547,8 @@
         const games = {
             crash: renderCrash, mines: renderMines, dice: renderDice, wheel: renderWheel,
             thimbles: renderThimbles, slots: renderSlots, blackjack: renderBlackjack,
-            coin: renderCoin, plinko: renderPlinko, tower: renderTower, cube: renderCube
+            coin: renderCoin, plinko: renderPlinko, tower: renderTower, cube: renderCube,
+            roulette: renderRoulette
         };
         if (games[game]) games[game](c);
     }
@@ -1469,6 +1470,79 @@
         updateModeUI();
     }
 
+    // ============ РУЛЕТКА (НОВАЯ ИГРА) ============
+    function renderRoulette(c) {
+        buildGameHeader(c, 'РУЛЕТКА', 'Классическая европейская рулетка. Выберите цвет (Красное/Черное — 2x, Зеро — 14x) и сделайте ставку. Колесо покажет выигрышное число.');
+        buildBetInput(c, 100);
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin:0 12px;';
+        wrap.innerHTML = `
+            <div style="display:flex;gap:8px;margin-bottom:12px;">
+                <button class="btn" id="roulRed" style="flex:1;background:#ef4444;">Красное (2x)</button>
+                <button class="btn" id="roulBlack" style="flex:1;background:#1a1a2e;border:1px solid #fff;">Черное (2x)</button>
+                <button class="btn btn-green" id="roulZero" style="flex:1;">Зеро (14x)</button>
+            </div>
+            <div class="roulette-wheel" id="roulResult">🎡</div>
+            <div class="flex-row mt-8">
+                <button class="btn btn-green" id="roulSpin">🎰 Крутить</button>
+            </div>
+        `;
+        c.appendChild(wrap);
+
+        let betAmount = 0;
+        let selectedColor = null;
+        const resEl = getEl('roulResult');
+
+        getEl('roulRed').addEventListener('click', () => { selectedColor = 'red'; showToast('Выбрано: Красное'); });
+        getEl('roulBlack').addEventListener('click', () => { selectedColor = 'black'; showToast('Выбрано: Черное'); });
+        getEl('roulZero').addEventListener('click', () => { selectedColor = 'zero'; showToast('Выбрано: Зеро'); });
+
+        getEl('roulSpin').addEventListener('click', () => {
+            if (!selectedColor) { showToast('Выберите цвет!'); return; }
+            const bet = validateBet(); if (!bet) return;
+            
+            betAmount = bet;
+            state.balance -= bet;
+            saveBalance();
+            
+            const old = c.querySelector('.result-badge'); if (old) old.remove();
+            
+            let spins = 0;
+            const spinInterval = setInterval(() => {
+                const num = Math.floor(Math.random() * 37);
+                resEl.textContent = (num === 0 ? '🟢' : (num % 2 === 0 ? '⚫' : '🔴')) + ' ' + num;
+                spins++;
+                if (spins > 20) {
+                    clearInterval(spinInterval);
+                    const finalNum = Math.floor(Math.random() * 37);
+                    const isRed = finalNum !== 0 && finalNum % 2 !== 0;
+                    const isBlack = finalNum !== 0 && finalNum % 2 === 0;
+                    const isZero = finalNum === 0;
+                    
+                    resEl.textContent = (isZero ? '🟢' : (isRed ? '🔴' : '⚫')) + ' ' + finalNum;
+                    
+                    let win = false;
+                    let mult = 0;
+                    
+                    if (selectedColor === 'red' && isRed) { win = true; mult = 2; }
+                    else if (selectedColor === 'black' && isBlack) { win = true; mult = 2; }
+                    else if (selectedColor === 'zero' && isZero) { win = true; mult = 14; }
+                    
+                    if (win) {
+                        const winAmt = betAmount * mult;
+                        state.balance += winAmt;
+                        saveBalance();
+                        showResult(c, `🎉 Победа! Выпало ${finalNum}. +${formatNum(winAmt)} монет`, 'win');
+                    } else {
+                        showResult(c, `😞 Выпало ${finalNum}. Потеряно ${formatNum(betAmount)} монет`, 'lose');
+                    }
+                }
+            }, 80);
+            registerCleanup(() => clearInterval(spinInterval));
+        });
+    }
+
     // ============ LEADERBOARD ============
     async function fetchLeaderboard() {
         try {
@@ -1581,10 +1655,8 @@
             <div class="profile-avatar">${(state.nick || '?')[0].toUpperCase()}</div>
             <div style="font-size:20px;font-weight:800;margin-bottom:4px;">${state.nick || 'Гость'}</div>
             <div style="font-size:14px;color:var(--gold);margin-bottom:16px;">🪙 ${formatNum(state.balance)} монет</div>
-            <button class="btn mt-8" id="changeNickBtn" style="width:100%;margin-bottom:8px;">✏️ Изменить никнейм</button>
             <button class="btn btn-gold mt-8" id="aboutBtn" style="width:100%;">👨‍💻 О разработчике</button>`;
         c.appendChild(card);
-        getEl('changeNickBtn').addEventListener('click', () => showNickModal(true));
         getEl('aboutBtn').addEventListener('click', () => showAboutModal());
     }
 
@@ -1596,34 +1668,6 @@
         overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
-    function showNickModal(isChange) {
-        const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
-        const title = isChange ? '✏️ Изменение никнейма' : '🎰 Добро пожаловать!';
-        const desc = isChange ? 'Введите новый никнейм (до 15 символов)' : 'Введите ваш никнейм для участия в ТОП-10';
-        overlay.innerHTML = `
-            <div class="modal">
-                <h3>${title}</h3><p style="margin-bottom:14px;">${desc}</p>
-                <input class="input" id="nickInput" type="text" maxlength="15" placeholder="Ваш никнейм" value="${isChange ? state.nick : ''}">
-                <div id="nickError" style="color:var(--danger);font-size:12px;text-align:center;margin-top:8px;min-height:18px;"></div>
-                <button class="btn btn-green mt-12" id="nickConfirm" style="width:100%;">${isChange ? 'Сохранить' : 'Войти в игру'}</button>
-            </div>`;
-        document.body.appendChild(overlay);
-        const input = overlay.querySelector('#nickInput'), errorEl = overlay.querySelector('#nickError');
-        input.focus();
-
-        function tryConfirm() {
-            const val = input.value.trim();
-            if (!val) { errorEl.textContent = 'Никнейм не может быть пустым!'; return; }
-            if (val.length > 15) { errorEl.textContent = 'Максимум 15 символов!'; return; }
-            localStorage.setItem(LS.nick, val); state.nick = val; updateHeader(); overlay.remove(); savePlayerScore();
-            if (!isChange) setScreen('menu'); else renderScreen();
-        }
-        overlay.querySelector('#nickConfirm').addEventListener('click', tryConfirm);
-        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryConfirm(); });
-        if (!isChange) overlay.addEventListener('click', (e) => { if (e.target === overlay) { /* блокируем */ } });
-        else overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-    }
-
     document.querySelectorAll('.nav-btn').forEach(btn => { btn.addEventListener('click', () => setScreen(btn.dataset.nav)); });
 
     async function init() {
@@ -1631,7 +1675,7 @@
         if (window.Telegram && Telegram.WebApp) {
             try { Telegram.WebApp.ready(); Telegram.WebApp.expand(); } catch (e) {}
         }
-        if (!state.nick) { showNickModal(false); renderMenu(getEl('content')); }
+        if (!state.nick) { renderMenu(getEl('content')); }
         else { renderScreen(); }
     }
 
