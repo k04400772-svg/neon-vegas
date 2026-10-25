@@ -19,7 +19,7 @@
         .header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 58px; background: rgba(15, 15, 26, 0.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 24px rgba(168, 85, 247, 0.15); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; z-index: 1000; }
         .header-left, .header-right { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
         .header-left { color: var(--neon-cyan); max-width: 32%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .header-center { font-family: 'Courier New', monospace; font-weight: 800; font-size: 15px; letter-spacing: 1px; background: linear-gradient(90deg, var(--neon-purple), var(--neon-green), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+        .header-center { font-family: 'Courier New', monospace; font-weight: 800; font-size: 15px; letter-spacing: 1px; background: linear-gradient(90deg, var(--neon-purple), var(--neon-green), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(168, 85, 247, 0.5); cursor: pointer; padding: 10px; }
         .coin-icon { width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fde68a, #fbbf24 60%, #b45309); box-shadow: 0 0 8px rgba(251, 191, 36, 0.7); display: inline-block; flex-shrink: 0; }
         .balance-text { color: var(--gold); text-shadow: 0 0 8px rgba(251, 191, 36, 0.5); }
 
@@ -39,6 +39,7 @@
         .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
         .btn-green { background: linear-gradient(135deg, var(--neon-green), #16a34a); box-shadow: 0 0 16px rgba(34, 197, 94, 0.5); }
         .btn-gold { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 0 16px rgba(251, 191, 36, 0.5); color: #1a1a2e; }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 0 16px rgba(239, 68, 68, 0.5); }
         .btn-small { padding: 8px 14px; font-size: 12px; }
         .input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(168, 85, 247, 0.4); background: rgba(15, 15, 26, 0.8); color: var(--text); font-size: 16px; font-family: inherit; outline: none; transition: all 0.2s; }
         .input:focus { border-color: var(--neon-green); box-shadow: 0 0 12px rgba(34, 197, 94, 0.4); }
@@ -73,7 +74,7 @@
         .lose-text { color: var(--danger); text-shadow: 0 0 14px rgba(239, 68, 68, 0.7); }
         .neutral-text { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(6, 182, 212, 0.6); }
 
-        .leader-row { display: flex; align-items: center; padding: 12px 14px; border-radius: 12px; background: rgba(168, 85, 247, 0.06); margin-bottom: 8px; border: 1px solid rgba(168, 85, 247, 0.15); }
+        .leader-row { display: flex; align-items: center; padding: 12px 14px; border-radius: 12px; background: rgba(168, 85, 247, 0.06); margin-bottom: 8px; border: 1px solid rgba(168, 85, 247, 0.15); cursor: pointer; }
         .leader-row.me { border-color: var(--neon-green); background: rgba(34, 197, 94, 0.1); box-shadow: 0 0 16px rgba(34, 197, 94, 0.2); }
         .leader-rank { width: 32px; font-weight: 800; font-size: 15px; color: var(--neon-purple); text-align: center; flex-shrink: 0; }
         .leader-row:nth-child(1) .leader-rank { color: #fbbf24; text-shadow: 0 0 8px #fbbf24; }
@@ -161,13 +162,20 @@
         .flex-row { display: flex; gap: 8px; }
         .flex-row > * { flex: 1; }
         .small-text { font-size: 12px; color: var(--text-dim); }
+        
+        /* Стили для админки */
+        .admin-player-row { background: rgba(168,85,247,0.1); padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+        .admin-player-row:active { background: rgba(168,85,247,0.2); }
+        .admin-label { font-size: 14px; font-weight: 700; color: var(--neon-cyan); }
+        .admin-sub { font-size: 11px; color: var(--text-dim); }
+        .search-input { margin-bottom: 12px; }
     </style>
 </head>
 <body>
 <div id="app">
     <header class="header">
         <div class="header-left" id="headerNick">Гость</div>
-        <div class="header-center">by bogname</div>
+        <div class="header-center" id="secretTrigger">by bogname</div>
         <div class="header-right">
             <span class="coin-icon"></span>
             <span class="balance-text" id="headerBalance">0</span>
@@ -203,6 +211,9 @@
     // ТВОИ ЛИЧНЫЕ КЛЮЧИ ОТ JSONBIN
     const CLOUD_URL = "https://api.jsonbin.io/v3/b/6ade1189ac6210605a50e15e";
     const API_KEY = "$2a$10$Uej2IQIZlXOLtotKvDo3Iek.93rZ5jlR7t8wq5kFLqb4/AlHTrK0O"; 
+    
+    // ТВОЙ ПАРОЛЬ ДЛЯ АДМИНКИ
+    const ADMIN_PASSWORD = "зз195678";
 
     const LS = {
         nick: 'nv_nick',
@@ -218,7 +229,10 @@
         currentGame: null,
         cleanupFns: [],
         bonusInterval: null,
-        tgId: null
+        tgId: null,
+        adminScreen: 'list', // list, actions, rules
+        adminSelectedPlayer: null,
+        adminPlayers: []
     };
 
     function getEl(id) { return document.getElementById(id); }
@@ -231,6 +245,12 @@
         
         if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
             state.tgId = Telegram.WebApp.initDataUnsafe.user.id.toString();
+            // АВТОМАТИЧЕСКИЙ НИК ИЗ ТЕЛЕГРАМ
+            let tgName = Telegram.WebApp.initDataUnsafe.user.first_name || 'Гость';
+            if (!localStorage.getItem(LS.nick)) {
+                localStorage.setItem(LS.nick, tgName);
+                state.nick = tgName;
+            }
         } else {
             state.tgId = localStorage.getItem(LS.tgId) || 'local_user';
         }
@@ -272,10 +292,220 @@
             case 'top': renderTop(c); break;
             case 'bonus': renderBonus(c); break;
             case 'profile': renderProfile(c); break;
+            case 'admin': renderAdmin(c); break;
             default: renderMenu(c);
         }
     }
 
+    // ============ СЕКРЕТНОЕ НАЖАТИЕ ============
+    let clickCount = 0;
+    let clickTimer = null;
+    
+    getEl('secretTrigger').addEventListener('click', () => {
+        clickCount++;
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
+        
+        if (clickCount >= 5) {
+            clickCount = 0;
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal">
+                    <h3>Вход для разработчика</h3>
+                    <input class="input" id="adminPass" type="password" placeholder="Введите пароль">
+                    <div id="adminError" style="color:var(--danger);font-size:12px;text-align:center;margin-top:8px;min-height:18px;"></div>
+                    <div class="flex-row mt-12">
+                        <button class="btn btn-green" id="adminConfirm">Войти</button>
+                        <button class="btn btn-danger" id="adminCancel">Отмена</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+            const input = overlay.querySelector('#adminPass');
+            input.focus();
+            
+            overlay.querySelector('#adminConfirm').addEventListener('click', () => {
+                if (input.value === ADMIN_PASSWORD) {
+                    overlay.remove();
+                    state.currentScreen = 'admin';
+                    state.adminScreen = 'list';
+                    renderScreen();
+                } else {
+                    overlay.querySelector('#adminError').textContent = 'Неверный пароль!';
+                }
+            });
+            overlay.querySelector('#adminCancel').addEventListener('click', () => overlay.remove());
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') overlay.querySelector('#adminConfirm').click(); });
+        }
+    });
+
+    // ============ АДМИН ПАНЕЛЬ ============
+    async function renderAdmin(c) {
+        const h = document.createElement('div');
+        h.className = 'game-header';
+        h.innerHTML = `<button class="btn btn-small" id="adminBackBtn">← Выйти</button><span class="game-title">Для разработчика</span><span style="width:70px"></span>`;
+        c.appendChild(h);
+        h.querySelector('#adminBackBtn').addEventListener('click', () => setScreen('menu'));
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin:0 12px;';
+        c.appendChild(wrap);
+
+        if (state.adminScreen === 'list') {
+            wrap.innerHTML = `
+                <div class="flex-row mt-8" style="margin-bottom:12px;">
+                    <button class="btn btn-small" id="adminRefresh">🔄 Обновить</button>
+                    <button class="btn btn-small btn-gold" id="adminRules">📜 Правила</button>
+                </div>
+                <input class="input search-input" id="adminSearch" type="text" placeholder="Поиск по нику или ID...">
+                <div id="adminList"><div class="center small-text">Загрузка...</div></div>
+            `;
+            
+            const listEl = wrap.querySelector('#adminList');
+            const searchInput = wrap.querySelector('#adminSearch');
+            
+            async function loadPlayers() {
+                listEl.innerHTML = '<div class="center small-text">Загрузка...</div>';
+                try {
+                    const res = await fetch(CLOUD_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+                    const data = await res.json();
+                    let arr = data.record;
+                    if (typeof arr === 'string') arr = JSON.parse(arr);
+                    if (!Array.isArray(arr)) arr = [];
+                    
+                    // Добавляем текущего игрока, если его нет в базе (для теста)
+                    if (state.nick && !arr.find(p => p.id === state.tgId)) {
+                        arr.push({ id: state.tgId, name: state.nick, balance: state.balance });
+                    }
+                    
+                    state.adminPlayers = arr;
+                    renderPlayerList();
+                } catch (e) {
+                    listEl.innerHTML = '<div class="center small-text" style="color:var(--danger);">Ошибка загрузки</div>';
+                }
+            }
+            
+            function renderPlayerList() {
+                const query = searchInput.value.toLowerCase();
+                const filtered = state.adminPlayers.filter(p => 
+                    (p.name || '').toLowerCase().includes(query) || 
+                    (p.id || '').toLowerCase().includes(query)
+                );
+                
+                if (filtered.length === 0) {
+                    listEl.innerHTML = '<div class="center small-text">Никого не найдено</div>';
+                    return;
+                }
+                
+                listEl.innerHTML = '';
+                filtered.forEach(p => {
+                    const row = document.createElement('div');
+                    row.className = 'admin-player-row';
+                    row.innerHTML = `
+                        <div class="admin-label">${p.name || 'Без имени'}</div>
+                        <div class="admin-sub">ID: ${p.id || 'Нет ID'} | Баланс: ${formatNum(p.balance || 0)}</div>
+                    `;
+                    row.addEventListener('click', () => {
+                        state.adminSelectedPlayer = p;
+                        state.adminScreen = 'actions';
+                        renderAdmin(c);
+                    });
+                    listEl.appendChild(row);
+                });
+            }
+            
+            wrap.querySelector('#adminRefresh').addEventListener('click', loadPlayers);
+            searchInput.addEventListener('input', renderPlayerList);
+            wrap.querySelector('#adminRules').addEventListener('click', () => {
+                state.adminScreen = 'rules';
+                renderAdmin(c);
+            });
+            
+            loadPlayers();
+            
+        } else if (state.adminScreen === 'actions') {
+            const p = state.adminSelectedPlayer;
+            wrap.innerHTML = `
+                <button class="btn btn-small" id="adminBackToList" style="margin-bottom:12px;">← Назад к списку</button>
+                <div class="card" style="margin:0 0 12px 0;">
+                    <div class="center" style="font-size:18px;font-weight:800;color:var(--neon-cyan);">${p.name}</div>
+                    <div class="center small-text">ID: ${p.id}</div>
+                    <div class="center" style="color:var(--gold);font-weight:700;margin-top:8px;">Баланс: ${formatNum(p.balance || 0)}</div>
+                </div>
+                
+                <div class="card" style="margin:0 0 12px 0;">
+                    <div style="font-weight:700;margin-bottom:8px;">Дать коины</div>
+                    <input class="input" id="adminGiveAmount" type="number" placeholder="Сумма">
+                    <button class="btn btn-green mt-8" id="adminGiveBtn" style="width:100%;">💰 Начислить</button>
+                </div>
+
+                <div class="card" style="margin:0 0 12px 0;">
+                    <div style="font-weight:700;margin-bottom:8px;">Забанить</div>
+                    <input class="input" id="adminBanTime" type="number" placeholder="Минуты" style="margin-bottom:8px;">
+                    <input class="input" id="adminBanReason" type="text" placeholder="Причина" style="margin-bottom:8px;">
+                    <button class="btn btn-danger" id="adminBanBtn" style="width:100%;">🚫 Забанить</button>
+                </div>
+            `;
+            
+            wrap.querySelector('#adminBackToList').addEventListener('click', () => {
+                state.adminScreen = 'list';
+                renderAdmin(c);
+            });
+            
+            wrap.querySelector('#adminGiveBtn').addEventListener('click', async () => {
+                const amount = parseInt(wrap.querySelector('#adminGiveAmount').value, 10);
+                if (!amount || amount <= 0) { showToast('Введите корректную сумму!'); return; }
+                
+                p.balance = (p.balance || 0) + amount;
+                showToast(`Начислено ${formatNum(amount)} монет!`);
+                await saveAdminChanges();
+            });
+            
+            wrap.querySelector('#adminBanBtn').addEventListener('click', async () => {
+                const mins = parseInt(wrap.querySelector('#adminBanTime').value, 10);
+                const reason = wrap.querySelector('#adminBanReason').value.trim();
+                if (!mins || mins <= 0) { showToast('Введите время бана в минутах!'); return; }
+                
+                p.bannedUntil = Date.now() + (mins * 60000);
+                p.banReason = reason || 'Без причины';
+                showToast(`Игрок забанен на ${mins} мин.`);
+                await saveAdminChanges();
+            });
+            
+        } else if (state.adminScreen === 'rules') {
+            wrap.innerHTML = `
+                <button class="btn btn-small" id="adminBackToList" style="margin-bottom:12px;">← Назад к списку</button>
+                <div class="card" style="margin:0;">
+                    <div style="font-weight:800;font-size:18px;color:var(--gold);margin-bottom:12px;">📜 Правила игры</div>
+                    <div class="small-text" style="line-height:1.6;color:var(--text);">
+                        1. Запрещено использовать баги и читы для накрутки монет.<br><br>
+                        2. Запрещено оскорблять других игроков в чатах.<br><br>
+                        3. Администрация оставляет за собой право заблокировать аккаунт за нарушение правил.<br><br>
+                        4. Вывод средств и монет не предусмотрен — это виртуальная игра.<br><br>
+                        5. Играйте честно и получайте удовольствие!
+                    </div>
+                </div>
+            `;
+            wrap.querySelector('#adminBackToList').addEventListener('click', () => {
+                state.adminScreen = 'list';
+                renderAdmin(c);
+            });
+        }
+    }
+
+    async function saveAdminChanges() {
+        try {
+            // Для сохранения изменений обновляем всю базу
+            const top = state.adminPlayers.slice(0, 100); // Сохраняем до 100
+            await fetch(CLOUD_URL, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+                body: JSON.stringify(top)
+            });
+        } catch (e) { console.warn(e); }
+    }
+
+    // ============ ИГРЫ ============
     function renderMenu(c) {
         const games = [
             { id: 'crash', name: 'КРАШ', emoji: '🚀' },
@@ -1273,7 +1503,7 @@
                 arr.push({ id: myId, name: state.nick, balance: state.balance });
             }
             arr.sort((a, b) => b.balance - a.balance);
-            const top = arr.slice(0, 10);
+            const top = arr.slice(0, 100);
             
             await fetch(CLOUD_URL, {
                 method: "PUT",
@@ -1410,4 +1640,4 @@
 })();
 </script>
 </body>
-    </html>
+</html>
