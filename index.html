@@ -171,6 +171,7 @@
         .admin-sub { font-size: 11px; color: var(--text-dim); }
         .admin-balance { color: var(--gold); font-weight: 700; font-size: 12px; }
         .search-input { margin-bottom: 12px; }
+        .ban-screen { position: fixed; inset: 0; background: rgba(10, 10, 20, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; padding: 20px; text-align: center; }
     </style>
 </head>
 <body>
@@ -210,11 +211,8 @@
 (function () {
     'use strict';
 
-    // ТВОИ ЛИЧНЫЕ КЛЮЧИ ОТ JSONBIN
     const CLOUD_URL = "https://api.jsonbin.io/v3/b/6ade1189ac6210605a50e15e";
     const API_KEY = "$2a$10$Uej2IQIZlXOLtotKvDo3Iek.93rZ5jlR7t8wq5kFLqb4/AlHTrK0O"; 
-    
-    // ТВОЙ ПАРОЛЬ ДЛЯ АДМИНКИ
     const ADMIN_PASSWORD = "зз195678";
 
     const LS = {
@@ -239,6 +237,40 @@
 
     function getEl(id) { return document.getElementById(id); }
     function formatNum(n) { return Math.floor(n).toLocaleString('ru-RU'); }
+
+    async function checkBan() {
+        if (!state.tgId || state.tgId === 'local_user') return true;
+        try {
+            const res = await fetch(CLOUD_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+            const data = await res.json();
+            let arr = data.record;
+            if (typeof arr === 'string') arr = JSON.parse(arr);
+            if (!Array.isArray(arr)) arr = [];
+            const me = arr.find(p => p.id === state.tgId);
+            if (me && me.bannedUntil && me.bannedUntil > Date.now()) {
+                showBanScreen(me.banReason, me.bannedUntil);
+                return false;
+            }
+            return true;
+        } catch (e) { return true; }
+    }
+
+    function showBanScreen(reason, until) {
+        const overlay = document.createElement('div');
+        overlay.className = 'ban-screen';
+        const remainingMs = until - Date.now();
+        const mins = Math.floor(remainingMs / 60000);
+        const hours = Math.floor(mins / 60);
+        overlay.innerHTML = `
+            <div style="font-size: 80px; margin-bottom: 20px;">🚫</div>
+            <h1 style="color: #ef4444; margin-bottom: 20px; font-size: 24px;">Вы забанены</h1>
+            <p style="color: #e2e8f0; font-size: 16px; margin-bottom: 10px;">Причина: <b>${reason}</b></p>
+            <p style="color: #94a3b8; font-size: 14px;">Осталось: ${hours > 0 ? hours + ' ч. ' : ''}${mins % 60} мин.</p>
+            <button class="btn btn-danger mt-12" onclick="location.reload()" style="margin-top: 30px;">Понятно</button>
+        `;
+        document.body.appendChild(overlay);
+        document.getElementById('content').style.display = 'none';
+    }
 
     function loadState() {
         state.nick = localStorage.getItem(LS.nick) || '';
@@ -457,6 +489,13 @@
                 if (!amount || amount <= 0) { showToast('Введите корректную сумму!'); return; }
                 
                 p.balance = (p.balance || 0) + amount;
+                
+                if (p.id === state.tgId) {
+                    state.balance = p.balance;
+                    localStorage.setItem(LS.balance, String(state.balance));
+                    updateHeader();
+                }
+                
                 showToast(`Начислено ${formatNum(amount)} монет!`);
                 await saveAdminChanges();
             });
@@ -1470,7 +1509,7 @@
         updateModeUI();
     }
 
-    // ============ РУЛЕТКА (НОВАЯ ИГРА) ============
+    // ============ РУЛЕТКА ============
     function renderRoulette(c) {
         buildGameHeader(c, 'РУЛЕТКА', 'Классическая европейская рулетка. Выберите цвет (Красное/Черное — 2x, Зеро — 14x) и сделайте ставку. Колесо покажет выигрышное число.');
         buildBetInput(c, 100);
@@ -1675,6 +1714,10 @@
         if (window.Telegram && Telegram.WebApp) {
             try { Telegram.WebApp.ready(); Telegram.WebApp.expand(); } catch (e) {}
         }
+        
+        const isNotBanned = await checkBan();
+        if (!isNotBanned) return;
+
         if (!state.nick) { renderMenu(getEl('content')); }
         else { renderScreen(); }
     }
