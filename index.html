@@ -14,10 +14,9 @@
             --card: #121c3a;
             --gold: #d4af37;
             --gold-light: #f3e5ab;
-            --white-gold: #e2e8f0;
+            --white: #ffffff;
             --text: #d1d5db;
             --text-dim: #6b7280;
-            --accent: #1e3a8a;
             --danger: #b91c1c;
             --success: #15803d;
         }
@@ -26,16 +25,15 @@
         #app { display: flex; flex-direction: column; height: 100%; max-width: 500px; margin: 0 auto; width: 100%; position: relative; }
         
         /* HEADER */
-        .header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 64px; background: rgba(10, 17, 40, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(212, 175, 55, 0.2); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 1000; }
+        .header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 64px; background: rgba(10, 17, 40, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 1000; }
         .header-left { color: var(--gold-light); font-weight: 600; font-size: 14px; max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .header-center { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 15px; letter-spacing: 1px; color: var(--text); cursor: pointer; padding: 10px; opacity: 0.8; }
-        .header-right { display: flex; align-items: center; gap: 8px; font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 16px; color: var(--text); }
+        .header-center { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 15px; letter-spacing: 1px; color: var(--white); cursor: pointer; padding: 10px; opacity: 0.9; }
+        .header-right { display: flex; align-items: center; gap: 8px; font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 16px; color: var(--white); }
         
-        /* БЕЛО-ЗОЛОТАЯ МОНЕТА */
         .coin-icon { 
             width: 20px; height: 20px; border-radius: 50%; 
-            background: radial-gradient(circle at 30% 30%, #ffffff, #e2e8f0 40%, #d4af37 100%);
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3), inset 0 0 4px rgba(0,0,0,0.2);
+            background: radial-gradient(circle at 30% 30%, #ffffff, #f3e5ab 40%, #d4af37 100%);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
             display: inline-block; flex-shrink: 0;
         }
         
@@ -46,164 +44,188 @@
         .content::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
 
         /* NAV */
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 70px; background: rgba(10, 17, 40, 0.95); backdrop-filter: blur(15px); border-top: 1px solid rgba(212, 175, 55, 0.2); display: flex; z-index: 1000; }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; color: var(--text-dim); background: none; border: none; cursor: pointer; transition: all 0.3s; touch-action: manipulation; }
-        .nav-btn .nav-icon { font-size: 22px; line-height: 1; filter: grayscale(1); transition: all 0.3s; }
-        .nav-btn.active { color: var(--gold); font-weight: 600; }
-        .nav-btn.active .nav-icon { filter: grayscale(0) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6)); }
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 70px; background: rgba(10, 17, 40, 0.95); backdrop-filter: blur(15px); border-top: 1px solid rgba(212, 175, 55, 0.3); display: flex; z-index: 1000; }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; color: var(--text-dim); background: none; border: none; cursor: pointer; transition: all 0.2s; touch-action: manipulation; }
+        .nav-btn .nav-icon { font-size: 22px; line-height: 1; filter: grayscale(1); transition: all 0.2s; }
+        .nav-btn.active { color: var(--gold); font-weight: 700; }
+        .nav-btn.active .nav-icon { filter: grayscale(0) drop-shadow(0 0 8px rgba(212, 175, 55, 0.8)); transform: scale(1.1); }
 
         /* UI ELEMENTS */
-        .card { background: linear-gradient(145deg, #16224a, #0f1832); border: 1px solid rgba(212, 175, 55, 0.15); border-radius: 16px; padding: 16px; margin: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
-        .btn { border: none; border-radius: 12px; padding: 14px 20px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Montserrat', sans-serif; color: #000; background: linear-gradient(135deg, var(--gold-light), var(--gold)); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); letter-spacing: 0.5px; outline: none; touch-action: manipulation; }
-        .btn:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; filter: grayscale(0.5); }
-        .btn-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); box-shadow: none; }
-        .btn-outline:active { background: rgba(212, 175, 55, 0.1); }
-        .btn-danger { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        .card { background: linear-gradient(145deg, #16224a, #0f1832); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 16px; padding: 16px; margin: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.05); }
         
-        .input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); background: rgba(0, 0, 0, 0.3); color: var(--text); font-size: 16px; font-family: 'Roboto Mono', monospace; outline: none; transition: all 0.2s; touch-action: manipulation; }
-        .input:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
+        .btn { 
+            border: none; border-radius: 12px; padding: 16px 20px; font-size: 16px; font-weight: 800; cursor: pointer; 
+            transition: all 0.1s; font-family: 'Montserrat', sans-serif; color: #000; 
+            background: linear-gradient(180deg, #ffffff 0%, #f3e5ab 50%, #d4af37 100%);
+            box-shadow: 0 6px 0 #8a6e1c, 0 10px 20px rgba(0, 0, 0, 0.4), inset 0 2px 0 rgba(255,255,255,0.8);
+            letter-spacing: 0.5px; outline: none; touch-action: manipulation; position: relative; top: 0;
+        }
+        .btn:active { top: 6px; box-shadow: 0 0px 0 #8a6e1c, 0 2px 10px rgba(0, 0, 0, 0.4), inset 0 2px 0 rgba(255,255,255,0.8); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; top: 6px; background: #555; color: #888; }
+        
+        .btn-outline { 
+            background: transparent; border: 2px solid var(--gold); color: var(--gold); 
+            box-shadow: 0 4px 0 #8a6e1c, 0 5px 15px rgba(0,0,0,0.3); top: 0;
+        }
+        .btn-outline:active { top: 4px; box-shadow: 0 0 0 #8a6e1c, 0 2px 5px rgba(0,0,0,0.3); background: rgba(212, 175, 55, 0.1); }
+        
+        .btn-danger { 
+            background: linear-gradient(180deg, #f87171 0%, #ef4444 50%, #b91c1c 100%); color: #fff;
+            box-shadow: 0 6px 0 #7f1d1d, 0 10px 20px rgba(0, 0, 0, 0.4), inset 0 2px 0 rgba(255,255,255,0.4);
+        }
+        .btn-danger:active { top: 6px; box-shadow: 0 0px 0 #7f1d1d, 0 2px 10px rgba(0, 0, 0, 0.4), inset 0 2px 0 rgba(255,255,255,0.4); }
+        
+        .input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.4); background: rgba(0, 0, 0, 0.4); color: var(--white); font-size: 18px; font-family: 'Roboto Mono', monospace; font-weight: 700; outline: none; transition: all 0.2s; touch-action: manipulation; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
+        .input:focus { border-color: var(--white); box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 0 15px rgba(212, 175, 55, 0.3); }
 
         /* MENU */
         .games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px; }
-        .game-card { background: linear-gradient(145deg, #16224a, #0f1832); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px 14px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.2); touch-action: manipulation; position: relative; overflow: hidden; }
-        .game-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(212,175,55,0.1), transparent); opacity: 0; transition: opacity 0.3s; }
-        .game-card:active { transform: translateY(2px); border-color: rgba(212, 175, 55, 0.4); }
-        .game-card:active::before { opacity: 1; }
-        .game-card .game-emoji { font-size: 36px; margin-bottom: 10px; display: block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); pointer-events: none; }
-        .game-card .game-name { font-size: 13px; font-weight: 700; letter-spacing: 1px; color: var(--text); pointer-events: none; }
+        .game-card { 
+            background: linear-gradient(145deg, #16224a, #0f1832); border: 1px solid rgba(212, 175, 55, 0.15); 
+            border-radius: 16px; padding: 20px 14px; text-align: center; cursor: pointer; 
+            transition: all 0.1s; box-shadow: 0 6px 0 #050812, 0 10px 20px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05); 
+            touch-action: manipulation; position: relative; top: 0;
+        }
+        .game-card:active { top: 6px; box-shadow: 0 0px 0 #050812, 0 2px 10px rgba(0,0,0,0.3); border-color: var(--gold); }
+        .game-card .game-emoji { font-size: 38px; margin-bottom: 10px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); pointer-events: none; }
+        .game-card .game-name { font-size: 13px; font-weight: 800; letter-spacing: 1px; color: var(--white); pointer-events: none; }
 
         /* MODAL */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(5, 8, 20, 0.9); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 20px; }
-        .modal { background: var(--card); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 24px; padding: 28px; width: 100%; max-width: 380px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); animation: modalIn 0.3s cubic-bezier(0.1, 0.8, 0.3, 1); }
-        @keyframes modalIn { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(5, 8, 20, 0.95); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 20px; }
+        .modal { background: var(--card); border: 1px solid var(--gold); border-radius: 24px; padding: 28px; width: 100%; max-width: 380px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255,255,255,0.1); animation: modalIn 0.2s cubic-bezier(0.1, 0.8, 0.3, 1); }
+        @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .modal h3 { font-size: 20px; margin-bottom: 20px; color: var(--gold); text-align: center; font-weight: 800; }
-        .modal p { font-size: 14px; line-height: 1.6; color: var(--text-dim); text-align: center; }
+        .modal p { font-size: 15px; line-height: 1.6; color: var(--text); text-align: center; }
 
         /* GAME HEADER */
         .game-header { display: flex; align-items: center; justify-content: space-between; margin: 16px; }
-        .game-title { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: 1px; }
-        .instruction-block { background: rgba(212, 175, 55, 0.05); border-left: 4px solid var(--gold); border-radius: 8px; padding: 16px; margin: 16px; }
+        .game-title { font-size: 24px; font-weight: 900; color: var(--white); letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .instruction-block { background: rgba(212, 175, 55, 0.05); border-left: 4px solid var(--gold); border-radius: 8px; padding: 16px; margin: 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
         .instruction-block .instr-title { font-size: 12px; font-weight: 800; color: var(--gold); letter-spacing: 2px; margin-bottom: 8px; }
-        .instruction-block .instr-text { font-size: 13px; line-height: 1.6; color: var(--text-dim); }
+        .instruction-block .instr-text { font-size: 13px; line-height: 1.6; color: var(--text); }
 
         /* BET INPUTS */
         .bet-row { display: flex; gap: 10px; margin: 16px; align-items: center; }
-        .bet-row .input { flex: 1; font-size: 18px; font-weight: 700; }
+        .bet-row .input { flex: 1; }
         .quick-bets { display: flex; gap: 8px; margin: 0 16px 16px; }
-        .quick-bets button { flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text); border-radius: 10px; padding: 10px 0; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Roboto Mono', monospace; transition: all 0.2s; outline: none; touch-action: manipulation; }
-        .quick-bets button:active { background: rgba(212, 175, 55, 0.2); border-color: var(--gold); }
+        .quick-bets button { 
+            flex: 1; background: linear-gradient(180deg, #2a3b6b 0%, #1e2a4f 100%); 
+            border: 1px solid rgba(255,255,255,0.1); color: var(--white); border-radius: 10px; padding: 12px 0; 
+            font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Roboto Mono', monospace; 
+            transition: all 0.1s; outline: none; box-shadow: 0 4px 0 #0d142e; top: 0; position: relative;
+        }
+        .quick-bets button:active { top: 4px; box-shadow: 0 0 0 #0d142e; }
 
         /* RESULT */
-        .result-badge { text-align: center; font-size: 16px; font-weight: 700; margin: 16px; min-height: 24px; pointer-events: none; }
+        .result-badge { text-align: center; font-size: 18px; font-weight: 800; margin: 16px; min-height: 28px; pointer-events: none; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .win-text { color: #4ade80; }
         .lose-text { color: #f87171; }
         .neutral-text { color: var(--gold); }
 
         /* LEADERBOARD */
-        .leader-row { display: flex; align-items: center; padding: 14px 16px; border-radius: 12px; background: rgba(255, 255, 255, 0.03); margin-bottom: 10px; border: 1px solid transparent; }
-        .leader-row.me { border-color: var(--gold); background: rgba(212, 175, 55, 0.08); }
-        .leader-rank { width: 36px; font-weight: 800; font-size: 16px; color: var(--text-dim); text-align: center; font-family: 'Roboto Mono', monospace; }
-        .leader-row:nth-child(1) .leader-rank { color: #fbbf24; }
+        .leader-row { display: flex; align-items: center; padding: 16px; border-radius: 12px; background: linear-gradient(145deg, #16224a, #0f1832); margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .leader-row.me { border-color: var(--gold); background: linear-gradient(145deg, #2a3b6b, #1e2a4f); box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
+        .leader-rank { width: 36px; font-weight: 900; font-size: 18px; color: var(--text-dim); text-align: center; font-family: 'Roboto Mono', monospace; }
+        .leader-row:nth-child(1) .leader-rank { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
         .leader-row:nth-child(2) .leader-rank { color: #cbd5e1; }
         .leader-row:nth-child(3) .leader-rank { color: #b45309; }
-        .leader-name { flex: 1; font-weight: 600; font-size: 15px; padding: 0 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .leader-balance { font-family: 'Roboto Mono', monospace; color: var(--gold-light); font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 4px; }
+        .leader-name { flex: 1; font-weight: 700; font-size: 16px; padding: 0 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--white); }
+        .leader-balance { font-family: 'Roboto Mono', monospace; color: var(--gold-light); font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 6px; }
 
         /* PROFILE */
-        .profile-avatar { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, #1e3a8a, #0f1832); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 800; color: var(--gold); margin: 0 auto 16px; box-shadow: 0 0 30px rgba(212, 175, 55, 0.2); }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #1e3a8a, #0f1832); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 44px; font-weight: 900; color: var(--gold); margin: 0 auto 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 2px 10px rgba(212, 175, 55, 0.3); }
 
         /* BONUS */
-        .bonus-timer { font-family: 'Roboto Mono', monospace; font-size: 36px; font-weight: 700; color: var(--gold); margin: 20px 0; text-align: center; }
+        .bonus-timer { font-family: 'Roboto Mono', monospace; font-size: 42px; font-weight: 700; color: var(--white); margin: 20px 0; text-align: center; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
         /* DICE */
         .dice-wrapper { margin: 16px; }
-        .dice-bar-container { position: relative; height: 48px; background: #0a1128; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px; display: flex; pointer-events: none; }
-        .dice-bar-lose { background: linear-gradient(90deg, #7f1d1d, #450a0a); transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: rgba(255,255,255,0.5); }
-        .dice-bar-win { background: linear-gradient(90deg, #14532d, #052e16); transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: rgba(255,255,255,0.8); }
-        .dice-slider { width: 100%; accent-color: var(--gold); height: 8px; cursor: pointer; touch-action: manipulation; }
-        .dice-display { text-align: center; font-size: 64px; font-weight: 900; font-family: 'Roboto Mono', monospace; color: var(--text); margin: 20px 0; pointer-events: none; }
-        .dice-display.win { color: #4ade80; }
-        .dice-display.lose { color: #f87171; }
+        .dice-bar-container { position: relative; height: 48px; background: #0a1128; border-radius: 12px; overflow: hidden; border: 2px solid #1e2a4f; margin-bottom: 16px; display: flex; pointer-events: none; box-shadow: inset 0 4px 10px rgba(0,0,0,0.5); }
+        .dice-bar-lose { background: linear-gradient(180deg, #7f1d1d, #450a0a); transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: rgba(255,255,255,0.5); }
+        .dice-bar-win { background: linear-gradient(180deg, #14532d, #052e16); transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: rgba(255,255,255,0.8); }
+        .dice-slider { width: 100%; accent-color: var(--gold); height: 12px; cursor: pointer; touch-action: manipulation; border-radius: 6px; }
+        .dice-display { text-align: center; font-size: 72px; font-weight: 900; font-family: 'Roboto Mono', monospace; color: var(--white); margin: 20px 0; pointer-events: none; text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .dice-display.win { color: #4ade80; text-shadow: 0 0 20px rgba(74, 222, 128, 0.5); }
+        .dice-display.lose { color: #f87171; text-shadow: 0 0 20px rgba(248, 113, 113, 0.5); }
 
         /* WHEEL */
-        .wheel-wrapper { position: relative; width: 300px; height: 300px; margin: 20px auto; }
-        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 28px solid var(--gold); z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
-        .wheel { width: 100%; height: 100%; border-radius: 50%; position: relative; overflow: hidden; border: 4px solid #1e3a8a; box-shadow: 0 0 40px rgba(0, 0, 0, 0.5); transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1); }
-        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; background: #0a1128; border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 5; }
-        .wheel-label { position: absolute; top: 50%; left: 50%; font-size: 14px; font-weight: 800; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); transform-origin: 0 0; pointer-events: none; z-index: 2; }
+        .wheel-wrapper { position: relative; width: 300px; height: 300px; margin: 20px auto; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6)); }
+        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 35px solid var(--white); z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.8)); }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; position: relative; overflow: hidden; border: 6px solid #1e2a4f; box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 0 4px var(--gold); transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1); }
+        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(145deg, #16224a, #0f1832); border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 30px; z-index: 5; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.5); }
+        .wheel-label { position: absolute; top: 50%; left: 50%; font-size: 16px; font-weight: 900; color: var(--white); text-shadow: 0 2px 6px rgba(0,0,0,1); transform-origin: 0 0; pointer-events: none; z-index: 2; }
 
         /* CRASH */
-        #crashCanvas { width: 100%; height: 240px; border-radius: 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); }
-        .crash-multiplier { text-align: center; font-size: 52px; font-weight: 900; font-family: 'Roboto Mono', monospace; color: var(--gold); margin: 16px 0; pointer-events: none; }
-        .crash-multiplier.crashed { color: var(--danger); }
+        #crashCanvas { width: 100%; height: 240px; border-radius: 16px; background: #0a1128; border: 2px solid #1e2a4f; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .crash-multiplier { text-align: center; font-size: 64px; font-weight: 900; font-family: 'Roboto Mono', monospace; color: var(--white); margin: 16px 0; pointer-events: none; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        .crash-multiplier.crashed { color: var(--danger); text-shadow: 0 0 20px rgba(185, 28, 28, 0.5); }
 
         /* MINES */
         .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 16px; }
-        .mine-cell { aspect-ratio: 1; background: #1e3a8a; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: all 0.1s; touch-action: manipulation; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3); }
-        .mine-cell:active { transform: scale(0.95); box-shadow: none; }
-        .mine-cell.safe { background: #14532d; border-color: #22c55e; pointer-events: none; }
-        .mine-cell.bomb { background: #7f1d1d; border-color: #ef4444; pointer-events: none; }
-        .mine-cell.disabled { pointer-events: none; opacity: 0.5; }
+        .mine-cell { aspect-ratio: 1; background: linear-gradient(180deg, #2a3b6b, #1e2a4f); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; transition: all 0.1s; touch-action: manipulation; box-shadow: 0 4px 0 #0d142e; position: relative; top: 0; }
+        .mine-cell:active { top: 4px; box-shadow: 0 0 0 #0d142e; }
+        .mine-cell.safe { background: linear-gradient(180deg, #166534, #14532d); border-color: #22c55e; pointer-events: none; box-shadow: 0 0 0 #052e16; top: 4px; }
+        .mine-cell.bomb { background: linear-gradient(180deg, #991b1b, #7f1d1d); border-color: #ef4444; pointer-events: none; box-shadow: 0 0 0 #450a0a; top: 4px; }
+        .mine-cell.disabled { pointer-events: none; opacity: 0.3; box-shadow: none; top: 4px; }
 
         /* UPGRADER */
-        .upg-wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 20px auto; border-radius: 50%; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-        .upg-wheel-bg { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none; background: #0a1128; border: 4px solid #1e3a8a; }
-        .upg-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 35px solid var(--gold); z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
-        .upg-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: #121c3a; border-radius: 50%; border: 2px solid var(--gold); z-index: 5; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: none; color: var(--gold); }
-        .upg-arrow { position: absolute; top: 50%; left: 50%; width: 120px; height: 4px; background: var(--text); transform-origin: 0 50%; transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1); z-index: 4; box-shadow: 0 0 10px #fff; pointer-events: none; border-radius: 4px; }
+        .upg-wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 20px auto; border-radius: 50%; box-shadow: 0 15px 30px rgba(0,0,0,0.6); }
+        .upg-wheel-bg { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none; background: #0a1128; border: 6px solid #1e2a4f; box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 0 4px var(--gold); }
+        .upg-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 35px solid var(--white); z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.8)); }
+        .upg-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: linear-gradient(145deg, #16224a, #0f1832); border-radius: 50%; border: 3px solid var(--gold); z-index: 5; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: none; color: var(--gold); box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.5); }
+        .upg-arrow { position: absolute; top: 50%; left: 50%; width: 120px; height: 6px; background: var(--white); transform-origin: 0 50%; transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1); z-index: 4; box-shadow: 0 0 15px rgba(255,255,255,0.8); pointer-events: none; border-radius: 4px; }
 
         /* SLOTS */
-        .slots-machine { display: flex; justify-content: center; gap: 12px; margin: 24px 16px; padding: 20px; background: #0a1128; border-radius: 20px; border: 2px solid #1e3a8a; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-        .slot-reel { width: 85px; height: 110px; background: #121c3a; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 15px rgba(0,0,0,0.6); }
+        .slots-machine { display: flex; justify-content: center; gap: 12px; margin: 24px 16px; padding: 20px; background: #0a1128; border-radius: 20px; border: 4px solid #1e2a4f; box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 0 0 2px var(--gold); }
+        .slot-reel { width: 85px; height: 110px; background: #121c3a; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
         .slot-strip { position: absolute; width: 100%; display: flex; flex-direction: column; align-items: center; transition: top 0.1s linear; }
-        .slot-symbol { width: 100%; height: 110px; display: flex; align-items: center; justify-content: center; font-size: 44px; flex-shrink: 0; }
+        .slot-symbol { width: 100%; height: 110px; display: flex; align-items: center; justify-content: center; font-size: 48px; flex-shrink: 0; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
 
         /* BLACKJACK */
         .bj-cards { display: flex; flex-wrap: wrap; gap: 8px; min-height: 80px; margin: 12px 0; justify-content: center; pointer-events: none; }
-        .bj-card { width: 50px; height: 70px; border-radius: 8px; background: #fff; color: #0a1128; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; border: 1px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .bj-card { width: 55px; height: 75px; border-radius: 8px; background: #fff; color: #0a1128; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; border: 1px solid #cbd5e1; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
         .bj-card.red { color: #dc2626; }
-        .bj-card.hidden { background: linear-gradient(135deg, #1e3a8a, #0a1128); color: var(--gold); font-size: 24px; border: 1px solid var(--gold); }
+        .bj-card.hidden { background: linear-gradient(135deg, #1e3a8a, #0a1128); color: var(--gold); font-size: 28px; border: 2px solid var(--gold); }
         .bj-buttons { display: flex; gap: 12px; margin: 16px; }
         .bj-buttons .btn { flex: 1; }
 
         /* COIN */
         .coin-wrapper { perspective: 1000px; display: flex; justify-content: center; margin: 40px 0; height: 160px; align-items: center; pointer-events: none; }
         .coin { width: 140px; height: 140px; position: relative; transform-style: preserve-3d; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.3, 1); }
-        .coin-face { position: absolute; width: 100%; height: 100%; border-radius: 50%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; font-size: 60px; border: 4px solid var(--gold); box-shadow: 0 0 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.2); }
-        .coin-front { background: linear-gradient(135deg, #f3e5ab, #d4af37); transform: rotateX(0deg); }
+        .coin-face { position: absolute; width: 100%; height: 100%; border-radius: 50%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; font-size: 64px; border: 4px solid var(--gold); box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.3); }
+        .coin-front { background: linear-gradient(135deg, #ffffff, #f3e5ab 50%, #d4af37); transform: rotateX(0deg); }
         .coin-back { background: linear-gradient(135deg, #cbd5e1, #64748b); transform: rotateX(180deg); }
 
         /* PLINKO */
-        #plinkoCanvas { width: 100%; height: 380px; border-radius: 16px; background: #0a1128; border: 1px solid #1e3a8a; display: block; }
+        #plinkoCanvas { width: 100%; height: 380px; border-radius: 16px; background: #0a1128; border: 2px solid #1e2a4f; display: block; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
 
         /* TOWER */
         .tower-row { display: flex; gap: 10px; margin: 10px 16px; justify-content: center; }
-        .tower-cell { flex: 1; max-width: 80px; aspect-ratio: 1.2; background: #1e3a8a; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; color: #fff; position: relative; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3); touch-action: manipulation; }
-        .tower-cell:active { transform: scale(0.95); box-shadow: none; }
-        .tower-cell.active-level { border-color: var(--gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
-        .tower-cell.safe { background: #14532d; border-color: #22c55e; pointer-events: none; box-shadow: none; }
-        .tower-cell.bomb { background: #7f1d1d; border-color: #ef4444; pointer-events: none; box-shadow: none; }
-        .tower-cell.locked { opacity: 0.2; pointer-events: none; box-shadow: none; }
-        .tower-mult { position: absolute; top: 4px; right: 6px; font-size: 10px; color: var(--gold); font-weight: 700; pointer-events: none; }
+        .tower-cell { flex: 1; max-width: 80px; aspect-ratio: 1.2; background: linear-gradient(180deg, #2a3b6b, #1e2a4f); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; color: #fff; position: relative; box-shadow: 0 4px 0 #0d142e; touch-action: manipulation; top: 0; }
+        .tower-cell:active { top: 4px; box-shadow: 0 0 0 #0d142e; }
+        .tower-cell.active-level { border-color: var(--gold); box-shadow: 0 4px 0 #0d142e, 0 0 15px rgba(212, 175, 55, 0.4); }
+        .tower-cell.safe { background: linear-gradient(180deg, #166534, #14532d); border-color: #22c55e; pointer-events: none; box-shadow: 0 0 0 #052e16; top: 4px; }
+        .tower-cell.bomb { background: linear-gradient(180deg, #991b1b, #7f1d1d); border-color: #ef4444; pointer-events: none; box-shadow: 0 0 0 #450a0a; top: 4px; }
+        .tower-cell.locked { opacity: 0.2; pointer-events: none; box-shadow: none; top: 4px; }
+        .tower-mult { position: absolute; top: 4px; right: 6px; font-size: 11px; color: var(--gold); font-weight: 800; pointer-events: none; }
 
         /* CUBE */
-        .cube-result { text-align: center; font-size: 90px; margin: 20px 0; min-height: 120px; line-height: 1; pointer-events: none; }
+        .cube-result { text-align: center; font-size: 100px; margin: 20px 0; min-height: 130px; line-height: 1; pointer-events: none; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); }
 
         /* DUEL */
-        .ring-container { position: relative; width: 100%; height: 260px; background: #0a1128; border: 2px solid #1e3a8a; border-radius: 20px; margin: 16px 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; padding: 16px; overflow: hidden; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); }
-        .fighter { width: 64px; height: 64px; background: #121c3a; border: 2px solid var(--gold); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; transition: all 0.5s ease; position: relative; pointer-events: none; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
-        .fighter .avatar { font-size: 26px; margin-bottom: 2px; }
+        .ring-container { position: relative; width: 100%; height: 260px; background: #0a1128; border: 4px solid #1e2a4f; border-radius: 20px; margin: 16px 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; padding: 16px; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.8), 0 0 0 2px var(--gold); }
+        .fighter { width: 70px; height: 70px; background: linear-gradient(145deg, #16224a, #0f1832); border: 3px solid var(--gold); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; transition: all 0.5s ease; position: relative; pointer-events: none; box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
+        .fighter .avatar { font-size: 30px; margin-bottom: 2px; }
         .fighter.dead { transform: scale(0.5) translateY(100px); opacity: 0; }
         .fighter.punch { animation: punchAnim 0.3s; }
         @keyframes punchAnim { 0% { transform: scale(1); } 50% { transform: scale(1.2) translateX(10px); } 100% { transform: scale(1); } }
 
         /* ADMIN */
-        .admin-player-row { background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; flex-direction: column; gap: 6px; touch-action: manipulation; }
-        .admin-player-row:active { background: rgba(212, 175, 55, 0.1); border-color: rgba(212, 175, 55, 0.3); }
-        .admin-label { font-size: 15px; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; pointer-events: none; }
+        .admin-player-row { background: linear-gradient(145deg, #16224a, #0f1832); padding: 16px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; flex-direction: column; gap: 6px; touch-action: manipulation; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .admin-player-row:active { background: linear-gradient(145deg, #2a3b6b, #1e2a4f); border-color: var(--gold); }
+        .admin-label { font-size: 16px; font-weight: 800; color: var(--white); display: flex; justify-content: space-between; pointer-events: none; }
         .admin-sub { font-size: 12px; color: var(--text-dim); pointer-events: none; font-family: 'Roboto Mono', monospace; }
-        .admin-balance { color: var(--gold); font-weight: 700; font-family: 'Roboto Mono', monospace; display: flex; align-items: center; gap: 4px; }
+        .admin-balance { color: var(--gold); font-weight: 800; font-family: 'Roboto Mono', monospace; display: flex; align-items: center; gap: 6px; font-size: 15px; }
         .search-input { margin-bottom: 16px; }
 
         /* BAN */
@@ -246,11 +268,8 @@
 (function () {
     'use strict';
 
-    // КЛЮЧИ
     const CLOUD_URL = "https://api.jsonbin.io/v3/b/6ade1189ac6210605a50e15e";
     const API_KEY = "$2a$10$Uej2IQIZlXOLtotKvDo3Iek.93rZ5jlR7t8wq5kFLqb4/AlHTrK0O"; 
-    
-    // ЗАШИФРОВАННЫЙ ПАРОЛЬ (зайка195678)
     const ENCODED_PASS = "0LfQsNC50LrQsDE5NTY3OA==";
 
     const LS = {
@@ -268,14 +287,12 @@
     function getEl(id) { return document.getElementById(id); }
     function formatNum(n) { return Math.floor(n).toLocaleString('ru-RU'); }
 
-    // Безопасный рандом
     function secureRandom() {
         const array = new Uint32Array(1);
         window.crypto.getRandomValues(array);
         return array[0] / 4294967296;
     }
 
-    // Проверка пароля
     function checkPassword(input) {
         try {
             const decoded = decodeURIComponent(escape(atob(ENCODED_PASS)));
@@ -332,6 +349,23 @@
             state.tgId = localStorage.getItem(LS.tgId) || 'local_user';
         }
         localStorage.setItem(LS.tgId, state.tgId);
+    }
+
+    async function syncBalance() {
+        if (!state.tgId || state.tgId === 'local_user') return;
+        try {
+            const res = await fetch(CLOUD_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+            const data = await res.json();
+            let arr = data.record;
+            if (typeof arr === 'string') arr = JSON.parse(arr);
+            if (!Array.isArray(arr)) arr = [];
+            const me = arr.find(p => p.id === state.tgId);
+            if (me && me.balance !== undefined) {
+                state.balance = me.balance;
+                localStorage.setItem(LS.balance, String(state.balance));
+                updateHeader();
+            }
+        } catch (e) {}
     }
 
     function saveBalance() {
@@ -496,24 +530,24 @@
             wrap.innerHTML = `
                 <button class="btn btn-outline" id="adminBackToList" style="margin-bottom:16px; width:100%;">← Назад к списку</button>
                 <div class="card" style="margin:0 0 16px 0; text-align:center;">
-                    <div style="font-size:20px;font-weight:800;color:var(--text);">${p.name}</div>
+                    <div style="font-size:22px;font-weight:900;color:var(--white);">${p.name}</div>
                     <div class="small-text mt-8" style="font-family:'Roboto Mono'">ID: ${p.id}</div>
-                    <div class="mt-8" style="color:var(--gold);font-weight:700;font-size:18px; display:flex; align-items:center; justify-content:center; gap:6px;">
-                        Баланс: ${formatNum(p.balance || 0)} <span class="coin-icon" style="width:16px;height:16px;"></span>
+                    <div class="mt-8" style="color:var(--gold);font-weight:800;font-size:20px; display:flex; align-items:center; justify-content:center; gap:6px;">
+                        Баланс: ${formatNum(p.balance || 0)} <span class="coin-icon" style="width:18px;height:18px;"></span>
                     </div>
                 </div>
                 
                 <div class="card" style="margin:0 0 16px 0;">
-                    <div style="font-weight:700;margin-bottom:12px;">Дать/Забрать SPH (минус = забрать)</div>
+                    <div style="font-weight:800;margin-bottom:12px;color:var(--white);">Дать/Забрать SPH (минус = забрать)</div>
                     <input class="input" id="adminGiveAmount" type="number" placeholder="Сумма">
                     <button class="btn mt-16" id="adminGiveBtn" style="width:100%;">Применить</button>
                 </div>
 
                 <div class="card" style="margin:0 0 16px 0;">
-                    <div style="font-weight:700;margin-bottom:12px;">Забанить</div>
-                    <input class="input" id="adminBanTime" type="number" placeholder="Минуты" style="margin-bottom:10px;">
+                    <div style="font-weight:800;margin-bottom:12px;color:var(--white);">Забанить</div>
+                    <input class="input" id="adminBanTime" type="number" placeholder="Минуты" style="margin-bottom:12px;">
                     <input class="input" id="adminBanReason" type="text" placeholder="Причина" style="margin-bottom:16px;">
-                    <button class="btn btn-danger" id="adminBanBtn" style="width:100%; margin-bottom:10px;">Забанить</button>
+                    <button class="btn btn-danger" id="adminBanBtn" style="width:100%; margin-bottom:12px;">Забанить</button>
                     <button class="btn btn-outline" id="adminUnbanBtn" style="width:100%;">Разбанить</button>
                 </div>
             `;
@@ -555,11 +589,11 @@
             wrap.innerHTML = `
                 <button class="btn btn-outline" id="adminBackToList" style="margin-bottom:16px; width:100%;">← Назад к списку</button>
                 <div class="card" style="margin:0;">
-                    <div style="font-weight:800;font-size:18px;color:var(--gold);margin-bottom:16px;">📜 Правила</div>
-                    <div class="small-text" style="line-height:1.8;color:var(--text);">
-                        1. Запрещено использовать баги.<br>
-                        2. Запрещено оскорблять других.<br>
-                        3. Администрация вправе выдать бан.<br>
+                    <div style="font-weight:900;font-size:20px;color:var(--gold);margin-bottom:16px;">📜 Правила</div>
+                    <div class="small-text" style="line-height:1.8;color:var(--text);font-size:15px;">
+                        1. Запрещено использовать баги.<br><br>
+                        2. Запрещено оскорблять других.<br><br>
+                        3. Администрация вправе выдать бан.<br><br>
                         4. Играйте честно!
                     </div>
                 </div>
@@ -581,10 +615,12 @@
             if (idx !== -1) {
                 arr[idx].balance = p.balance;
                 arr[idx].bannedUntil = p.bannedUntil;
+                arr[idx].banReason = p.banReason;
             } else {
                 arr.push(p);
             }
             
+            arr.sort((a, b) => b.balance - a.balance);
             await fetch(CLOUD_URL, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
@@ -692,7 +728,7 @@
         if (!t) {
             t = document.createElement('div');
             t.id = 'toast';
-            t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1e3a8a;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.5);transition:opacity 0.3s;max-width:90%;text-align:center;pointer-events:none;border:1px solid var(--gold);';
+            t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1e3a8a;color:#fff;padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.6);transition:opacity 0.3s;max-width:90%;text-align:center;pointer-events:none;border:2px solid var(--gold);';
             document.body.appendChild(t);
         }
         t.textContent = msg;
@@ -774,7 +810,7 @@
             betAmount = bet; state.balance -= bet; saveBalance();
             running = true; crashed = false; cashedOut = false; currentMult = 1.0; startTs = 0;
             multEl.classList.remove('crashed'); multEl.textContent = '1.00x';
-            let r = secureRandom(); let cp = r < 0.1 ? 1.00 : (0.85 / (1 - r));
+            let r = secureRandom(); let cp = r < 0.15 ? 1.00 : (0.85 / (1 - r));
             if (cp > 10) cp = 10; if (cp < 1.01) cp = 1.01; crashPoint = cp;
             startBtn.disabled = true; cashoutBtn.disabled = false;
             const old = c.querySelector('.result-badge'); if (old) old.remove();
@@ -785,10 +821,12 @@
             if (!running || cashedOut || crashed) return;
             cashedOut = true; running = false;
             if (animId) cancelAnimationFrame(animId);
+            
             const winAmt = Math.floor(betAmount * currentMult);
+            
             state.balance += winAmt; saveBalance();
             multEl.textContent = '✅ ' + currentMult.toFixed(2) + 'x';
-            showResult(c, '💰 Забрано ' + formatNum(winAmt) + ' SPH', 'win');
+            showResult(c, '💰 Выплата ' + formatNum(winAmt) + ' SPH', 'win');
             cashoutBtn.disabled = true; startBtn.disabled = false;
         });
         registerCleanup(() => { running = false; if (animId) cancelAnimationFrame(animId); });
@@ -798,7 +836,7 @@
     function renderMines(c) {
         buildGameHeader(c, 'MINES', 'Открывайте безопасные ячейки.');
         const mineRow = document.createElement('div'); mineRow.style.cssText = 'display:flex;align-items:center;gap:12px;margin:16px;';
-        mineRow.innerHTML = `<span style="font-size:14px;font-weight:600;">Мин:</span><input class="input" id="mineCount" type="number" min="1" max="24" value="3" style="flex:1;">`;
+        mineRow.innerHTML = `<span style="font-size:15px;font-weight:700;color:var(--white);">Мин:</span><input class="input" id="mineCount" type="number" min="1" max="24" value="3" style="flex:1;">`;
         c.appendChild(mineRow);
         buildBetInput(c, 100);
         const grid = document.createElement('div'); grid.className = 'mines-grid'; grid.id = 'minesGrid'; c.appendChild(grid);
@@ -809,7 +847,7 @@
 
         function calcMultiplier(mines, revealedCount) {
             let mult = 1; for (let i = 0; i < revealedCount; i++) mult *= (25 - i) / (25 - mines - i);
-            return Math.max(1, Math.floor((mult * 0.8) * 95) / 100);
+            return Math.max(1, Math.floor((mult * 0.75) * 100) / 100);
         }
 
         function buildGrid() {
@@ -878,9 +916,9 @@
         buildBetInput(c, 100);
         const slWrap = document.createElement('div'); slWrap.className = 'dice-wrapper';
         slWrap.innerHTML = `
-            <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-dim);font-weight:600;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:14px;color:var(--text-dim);font-weight:700;margin-bottom:10px;">
                 <span>Шанс: <span id="diceChanceVal" style="color:var(--gold)">50%</span></span>
-                <span>Множитель: <span id="diceMultVal" style="color:var(--text)">1.71x</span></span>
+                <span>Множитель: <span id="diceMultVal" style="color:var(--white)">1.90x</span></span>
             </div>
             <div class="dice-bar-container" id="diceBarContainer"><div class="dice-bar-lose" id="diceBarLose" style="width: 50%;">0 - 50</div><div class="dice-bar-win" id="diceBarWin" style="width: 50%;">50 - 100</div></div>
             <input type="range" class="dice-slider" id="diceSlider" min="1" max="95" value="50">
@@ -892,7 +930,7 @@
 
         function updateChanceDisplay() {
             chance = parseInt(slider.value, 10); chanceVal.textContent = chance + '%'; 
-            let mult = (95 / chance) * 0.8;
+            let mult = 95 / chance; 
             multVal.textContent = mult.toFixed(2) + 'x';
             if (isOverMode) {
                 barLose.style.width = (100 - chance) + '%'; barWin.style.width = chance + '%';
@@ -911,7 +949,7 @@
             if (rolling) return;
             const bet = validateBet(); if (!bet) return;
             rolling = true; state.balance -= bet; saveBalance();
-            const winChance = chance, multiplier = (95 / winChance) * 0.8; let spinCount = 0;
+            const winChance = chance, multiplier = 95 / winChance; let spinCount = 0;
             display.classList.remove('win', 'lose'); const old = c.querySelector('.result-badge'); if (old) old.remove();
             spinInterval = setInterval(() => {
                 display.textContent = (secureRandom() * 100).toFixed(2); spinCount++;
@@ -920,7 +958,8 @@
                     const finalNum = secureRandom() * 100; display.textContent = finalNum.toFixed(2);
                     let win = isOverMode ? (finalNum > (100 - winChance)) : (finalNum < winChance);
                     if (win) {
-                        const winAmt = Math.floor(bet * multiplier); state.balance += winAmt; saveBalance();
+                        const winAmt = Math.floor(bet * multiplier);
+                        state.balance += winAmt; saveBalance();
                         display.classList.add('win'); showResult(c, '🎉 Победа! +' + formatNum(winAmt) + ' SPH', 'win');
                     } else {
                         display.classList.add('lose'); showResult(c, '😞 Проигрыш. Потеряно ' + formatNum(bet) + ' SPH', 'lose');
@@ -944,11 +983,11 @@
         c.appendChild(wrap);
         
         const sectors = [ 
-            { label: '0x', weight: 40, color: '#0f1832' }, 
-            { label: 'x1.5', weight: 25, color: '#1e3a8a' }, 
-            { label: 'x2', weight: 20, color: '#2563eb' }, 
-            { label: 'x3', weight: 10, color: '#3b82f6' }, 
-            { label: 'x5', weight: 5, color: '#d4af37' } 
+            { label: '0x', weight: 55, color: '#0f1832' }, 
+            { label: 'x1.5', weight: 20, color: '#1e3a8a' }, 
+            { label: 'x2', weight: 15, color: '#2563eb' }, 
+            { label: 'x3', weight: 7, color: '#3b82f6' }, 
+            { label: 'x5', weight: 3, color: '#d4af37' } 
         ];
         
         const wheelEl = getEl('wheelEl'), resultEl = getEl('wheelResult'); let spinning = false, currentRotation = 0;
@@ -962,7 +1001,7 @@
             
             const midAngle = currentAngle + ((sec.weight / 100) * 360) / 2;
             const label = document.createElement('div'); label.className = 'wheel-label';
-            const rad = (midAngle - 90) * Math.PI / 180, r = 90;
+            const rad = (midAngle - 90) * Math.PI / 180, r = 95;
             label.style.transform = `translate(calc(-50% + ${Math.cos(rad) * r}px), calc(-50% + ${Math.sin(rad) * r}px))`;
             label.textContent = sec.label; wheelEl.appendChild(label);
             
@@ -988,7 +1027,8 @@
                 wheelEl.removeEventListener('transitionend', onEnd); spinning = false;
                 const mult = parseFloat(selected.label.replace('x', ''));
                 if (mult > 0) {
-                    const winAmt = Math.floor(bet * mult); state.balance += winAmt; saveBalance();
+                    const winAmt = Math.floor(bet * mult);
+                    state.balance += winAmt; saveBalance();
                     resultEl.textContent = `🎉 Выпало ${selected.label}! +${formatNum(winAmt)} SPH`; resultEl.className = 'result-badge win-text';
                 } else {
                     resultEl.textContent = `💨 Выпало ${selected.label}. Потеряно ${formatNum(bet)} SPH`; resultEl.className = 'result-badge lose-text';
@@ -1043,7 +1083,8 @@
             thimbleEls.forEach((t, idx) => { if (parseInt(t.dataset.index) === ballIndex) { visualWinnerIdx = idx; t.classList.add('show-ball'); } });
             const old = c.querySelector('.result-badge'); if (old) old.remove();
             if (i === visualWinnerIdx) {
-                const winAmt = Math.floor(betAmount * 2.2); state.balance += winAmt; saveBalance();
+                const winAmt = Math.floor(betAmount * 2.7);
+                state.balance += winAmt; saveBalance();
                 showResult(c, '🎉 Угадали! +' + formatNum(winAmt) + ' SPH', 'win');
             } else {
                 showResult(c, '😞 Промах. Потеряно ' + formatNum(betAmount) + ' SPH', 'lose');
@@ -1069,7 +1110,7 @@
 
     // ============ SLOTS ============
     function renderSlots(c) {
-        buildGameHeader(c, 'SLOTS', '3 одинаковых = x6, 2 = x1.3.');
+        buildGameHeader(c, 'SLOTS', '3 одинаковых = x7, 2 = x1.5.');
         buildBetInput(c, 100);
         const machine = document.createElement('div'); machine.className = 'slots-machine';
         machine.innerHTML = `<div class="slot-reel"><div class="slot-strip" id="reel0"></div></div><div class="slot-reel"><div class="slot-strip" id="reel1"></div></div><div class="slot-reel"><div class="slot-strip" id="reel2"></div></div>`;
@@ -1107,11 +1148,11 @@
             const bet = parseInt(spinBtn.dataset.bet || '0', 10);
             const old = c.querySelector('.result-badge'); if (old) old.remove();
             if (results[0] === results[1] && results[1] === results[2]) {
-                const winAmt = bet * 6; state.balance += winAmt; saveBalance();
-                showResult(c, '🎉 ДЖЕКПОТ! 6x +' + formatNum(winAmt) + ' SPH', 'win');
+                const winAmt = bet * 7; state.balance += winAmt; saveBalance();
+                showResult(c, '🎉 ДЖЕКПОТ! 7x +' + formatNum(winAmt) + ' SPH', 'win');
             } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
-                const winAmt = Math.floor(bet * 1.3); state.balance += winAmt; saveBalance();
-                showResult(c, '✨ Два совпадения! 1.3x +' + formatNum(winAmt) + ' SPH', 'win');
+                const winAmt = Math.floor(bet * 1.5); state.balance += winAmt; saveBalance();
+                showResult(c, '✨ Два совпадения! 1.5x +' + formatNum(winAmt) + ' SPH', 'win');
             } else {
                 showResult(c, '😞 Нет совпадений. Потеряно ' + formatNum(bet) + ' SPH', 'lose');
             }
@@ -1134,9 +1175,9 @@
         buildBetInput(c, 100);
         const wrap = document.createElement('div'); wrap.style.cssText = 'margin:16px;';
         wrap.innerHTML = `
-            <div style="font-size:14px;font-weight:600;color:var(--text-dim);margin-bottom:6px;">Дилер: <span id="bjDealerScore" style="color:var(--gold); font-family:'Roboto Mono'">?</span></div>
+            <div style="font-size:15px;font-weight:700;color:var(--text-dim);margin-bottom:6px;">Дилер: <span id="bjDealerScore" style="color:var(--gold); font-family:'Roboto Mono'">?</span></div>
             <div class="bj-cards" id="bjDealerCards"></div>
-            <div style="font-size:14px;font-weight:600;color:var(--text-dim);margin:16px 0 6px;">Вы: <span id="bjPlayerScore" style="color:var(--text); font-family:'Roboto Mono'">0</span></div>
+            <div style="font-size:15px;font-weight:700;color:var(--text-dim);margin:16px 0 6px;">Вы: <span id="bjPlayerScore" style="color:var(--white); font-family:'Roboto Mono'">0</span></div>
             <div class="bj-cards" id="bjPlayerCards"></div>
             <div class="bj-buttons mt-16">
                 <button class="btn btn-outline" id="bjDeal">Раздать</button>
@@ -1164,7 +1205,7 @@
         function renderCard(card, hidden) {
             if (hidden) return '<div class="bj-card hidden">🂠</div>';
             const isRed = card.suit === '♥' || card.suit === '♦';
-            return `<div class="bj-card${isRed ? ' red' : ''}"><span>${card.rank}</span><span style="font-size:24px">${card.suit}</span></div>`;
+            return `<div class="bj-card${isRed ? ' red' : ''}"><span>${card.rank}</span><span style="font-size:28px">${card.suit}</span></div>`;
         }
 
         function renderHands() {
@@ -1192,7 +1233,10 @@
             playerHand.push(deck.pop()); dealerHand.push(deck.pop()); playerHand.push(deck.pop()); dealerHand.push(deck.pop());
             renderHands(); getEl('bjHit').disabled = false; getEl('bjStand').disabled = false; getEl('bjDeal').disabled = true;
             getEl('bjResult').textContent = ''; getEl('bjResult').className = 'result-badge';
-            if (calcScore(playerHand) === 21) endGame('🎉 Блэкджек! +' + formatNum(Math.floor(betAmount * 1.5)) + ' SPH', 'win', Math.floor(betAmount * 1.5));
+            if (calcScore(playerHand) === 21) {
+                const winAmt = Math.floor(betAmount * 1.5);
+                endGame('🎉 Блэкджек! +' + formatNum(winAmt) + ' SPH', 'win', winAmt);
+            }
         });
 
         getEl('bjHit').addEventListener('click', () => {
@@ -1212,8 +1256,14 @@
             }
             function checkResult() {
                 const ps = calcScore(playerHand), ds = calcScore(dealerHand);
-                if (ds > 21) endGame('🎉 Дилер перебрал! +' + formatNum(Math.floor(betAmount * 1.8)) + ' SPH', 'win', Math.floor(betAmount * 1.8));
-                else if (ps > ds) endGame('🎉 Победа! +' + formatNum(Math.floor(betAmount * 1.8)) + ' SPH', 'win', Math.floor(betAmount * 1.8));
+                if (ds > 21) {
+                    const winAmt = Math.floor(betAmount * 2);
+                    endGame('🎉 Дилер перебрал! +' + formatNum(winAmt) + ' SPH', 'win', winAmt);
+                }
+                else if (ps > ds) {
+                    const winAmt = Math.floor(betAmount * 2);
+                    endGame('🎉 Победа! +' + formatNum(winAmt) + ' SPH', 'win', winAmt);
+                }
                 else if (ps === ds) endGame('🤝 Ничья.', 'neutral', betAmount);
                 else endGame('😞 Дилер победил.', 'lose');
             }
@@ -1224,7 +1274,7 @@
 
     // ============ COIN ============
     function renderCoin(c) {
-        buildGameHeader(c, 'COIN', 'Орел или Решка. Икс 1.75x.');
+        buildGameHeader(c, 'COIN', 'Орел или Решка. Икс 1.95x.');
         buildBetInput(c, 100);
         const wrap = document.createElement('div');
         wrap.innerHTML = `
@@ -1247,7 +1297,8 @@
                 coinEl.removeEventListener('transitionend', onEnd); flipping = false;
                 const won = outcome === choice, outcomeLabel = outcome === 'heads' ? 'Орёл' : 'Решка';
                 if (won) {
-                    const winAmt = Math.floor(bet * 1.75); state.balance += winAmt; saveBalance();
+                    const winAmt = Math.floor(bet * 1.95);
+                    state.balance += winAmt; saveBalance();
                     resultEl.textContent = `🎉 Выпал ${outcomeLabel}! +${formatNum(winAmt)} SPH`; resultEl.className = 'result-badge win-text';
                 } else {
                     resultEl.textContent = `😞 Выпал ${outcomeLabel}. Потеряно ${formatNum(bet)} SPH`; resultEl.className = 'result-badge lose-text';
@@ -1269,7 +1320,7 @@
         canvasWrap.innerHTML = '<canvas id="plinkoCanvas" width="600" height="680"></canvas>'; c.appendChild(canvasWrap);
         const btn = document.createElement('button'); btn.className = 'btn'; btn.style.cssText = 'display:block;width:80%;margin:16px auto;'; btn.textContent = 'Запустить'; c.appendChild(btn);
         const canvas = getEl('plinkoCanvas'), ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
-        const rows = 7, pegRadius = 6, bottomSlots = [4.5, 1.8, 0.45, 0.18, 0.45, 1.8, 4.5], slotColors = ['#d4af37', '#1e3a8a', '#2563eb', '#0f1832', '#2563eb', '#1e3a8a', '#d4af37'];
+        const rows = 7, pegRadius = 6, bottomSlots = [5, 2, 0.5, 0.2, 0.5, 2, 5], slotColors = ['#d4af37', '#1e3a8a', '#2563eb', '#0f1832', '#2563eb', '#1e3a8a', '#d4af37'];
         let pegs = [], gameActive = false, betAmount = 0;
 
         function buildPegs() {
@@ -1342,7 +1393,7 @@
         const controls = document.createElement('div'); controls.className = 'flex-row mt-16'; controls.style.margin = '16px';
         controls.innerHTML = `<button class="btn btn-outline" id="towerStart">Начать</button><button class="btn" id="towerCashout" disabled>Забрать</button>`;
         c.appendChild(controls);
-        const multipliers = [1.2, 1.6, 2.2, 3.5, 5.0];
+        const multipliers = [1.3, 1.8, 2.5, 4.0, 6.0];
         let active = false, currentLevel = 0, betAmount = 0, towerMines = [], gameOver = false;
 
         function buildTower() {
@@ -1427,9 +1478,9 @@
         wrap.style.cssText = 'margin:0 16px;';
         wrap.innerHTML = `
             <div style="display:flex;gap:10px;margin-bottom:16px;">
-                <button class="btn btn-outline" id="cubeModeExact" style="flex:1;border-color:var(--gold);color:var(--gold);">Точное (4.5x)</button>
-                <button class="btn btn-outline" id="cubeModeEven" style="flex:1;">Чёт/Нечет (1.71x)</button>
-                <button class="btn btn-outline" id="cubeModeOver" style="flex:1;">Больше/Меньше (1.71x)</button>
+                <button class="btn btn-outline" id="cubeModeExact" style="flex:1;border-color:var(--gold);color:var(--gold);">Точное (5x)</button>
+                <button class="btn btn-outline" id="cubeModeEven" style="flex:1;">Чёт/Нечет (1.9x)</button>
+                <button class="btn btn-outline" id="cubeModeOver" style="flex:1;">Больше/Меньше (1.9x)</button>
             </div>
             
             <div id="cubeControlsExact" class="flex-row" style="margin-bottom:16px;">
@@ -1521,9 +1572,9 @@
                     resEl.textContent = diceFaces[result - 1];
                     let win = false, multiplier = 1;
 
-                    if (mode === 'exact') { win = result === exactChoice; multiplier = 4.5; }
-                    else if (mode === 'even') { const isEven = result % 2 === 0; win = (evenChoice === 'even' && isEven) || (evenChoice === 'odd' && !isEven); multiplier = 1.71; }
-                    else if (mode === 'over') { win = (overChoice === 'over' && result > 3.5) || (overChoice === 'under' && result < 3.5); multiplier = 1.71; }
+                    if (mode === 'exact') { win = result === exactChoice; multiplier = 5; }
+                    else if (mode === 'even') { const isEven = result % 2 === 0; win = (evenChoice === 'even' && isEven) || (evenChoice === 'odd' && !isEven); multiplier = 1.9; }
+                    else if (mode === 'over') { win = (overChoice === 'over' && result > 3.5) || (overChoice === 'under' && result < 3.5); multiplier = 1.9; }
 
                     if (win) { const winAmt = Math.floor(betAmount * multiplier); state.balance += winAmt; saveBalance(); showResult(c, `🎉 Выиграло ${result}! +${formatNum(winAmt)} SPH`, 'win'); }
                     else { showResult(c, `😞 Выпало ${result}. Потеряно ${formatNum(betAmount)} SPH`, 'lose'); }
@@ -1535,7 +1586,7 @@
         updateModeUI();
     }
 
-    // ============ РУЛЕТКА (НОВАЯ) ============
+    // ============ РУЛЕТКА ============
     function renderRoulette(c) {
         buildGameHeader(c, 'ROULETTE', 'Выберите цвет. Сектор 0 — самый большой.');
         buildBetInput(c, 100);
@@ -1561,15 +1612,14 @@
 
         const setColor = (color) => { 
             selectedColor = color; 
-            document.querySelectorAll('.btn-outline').forEach(b => b.style.background = 'transparent');
             showToast('Выбрано: ' + color); 
         };
-        getEl('roulRed').addEventListener('click', () => { selectedColor = 'red'; showToast('Красное'); });
-        getEl('roulBlack').addEventListener('click', () => { selectedColor = 'black'; showToast('Черное'); });
-        getEl('roulGreen').addEventListener('click', () => { selectedColor = 'green'; showToast('Зеленое'); });
-        getEl('roulBlue').addEventListener('click', () => { selectedColor = 'blue'; showToast('Синее'); });
-        getEl('roulPink').addEventListener('click', () => { selectedColor = 'pink'; showToast('Розовое'); });
-        getEl('roulZero').addEventListener('click', () => { selectedColor = 'zero'; showToast('Зеро'); });
+        getEl('roulRed').addEventListener('click', () => setColor('red'));
+        getEl('roulBlack').addEventListener('click', () => setColor('black'));
+        getEl('roulGreen').addEventListener('click', () => setColor('green'));
+        getEl('roulBlue').addEventListener('click', () => setColor('blue'));
+        getEl('roulPink').addEventListener('click', () => setColor('pink'));
+        getEl('roulZero').addEventListener('click', () => setColor('zero'));
 
         getEl('roulSpin').addEventListener('click', () => {
             if (!selectedColor) { showToast('Выберите цвет!'); return; }
@@ -1586,14 +1636,14 @@
                 if (spins > 20) {
                     clearInterval(spinInterval);
                     
-                    // Генератор с жесткими шансами (0 - 55%)
                     const r = secureRandom() * 100;
                     let finalColor = 'zero';
-                    if (r < 10) finalColor = 'green'; // 10% x5
-                    else if (r < 20) finalColor = 'blue'; // 10% x3
-                    else if (r < 35) finalColor = 'pink'; // 15% x1.5
-                    else if (r < 50) finalColor = 'red'; // 15% x2
-                    else if (r < 100) finalColor = 'zero'; // 50% x0 (или проигрыш)
+                    if (r < 5) finalColor = 'green'; // 5% x5
+                    else if (r < 15) finalColor = 'blue'; // 10% x3
+                    else if (r < 30) finalColor = 'pink'; // 15% x1.5
+                    else if (r < 50) finalColor = 'red'; // 20% x2
+                    else if (r < 55) finalColor = 'black'; // 5% x2
+                    else finalColor = 'zero'; // 45% x0
                     
                     let win = false, mult = 0;
                     if (selectedColor === finalColor) {
@@ -1622,7 +1672,7 @@
 
     // ============ ДУЭЛЬ ============
     function renderDuel(c) {
-        buildGameHeader(c, 'DUEL', 'Выбери бойца. Раунд 1: x1.2, Раунд 2: x2.5, Раунд 3: x5.5. Если твой боец вылетает — ты теряешь ВСЁ.');
+        buildGameHeader(c, 'DUEL', 'Выбери бойца. Раунд 1: x1.5, Раунд 2: x3.1, Раунд 3: x5. Если твой боец вылетает — ты теряешь ВСЁ.');
         buildBetInput(c, 100);
 
         const wrap = document.createElement('div');
@@ -1737,8 +1787,8 @@
                     }
 
                     if (currentRound === 1) {
-                        roundMult = 1.2;
-                        getEl('duelResult').textContent = `Раунд 1 пройден! Доступно: x1.2`;
+                        roundMult = 1.5;
+                        getEl('duelResult').textContent = `Раунд 1 пройден! Доступно: x1.5`;
                         getEl('duelResult').className = 'result-badge neutral-text';
                         getEl('duelCashoutBtn').disabled = false;
                         getEl('duelCashoutBtn').textContent = `Забрать (${formatNum(betAmount * roundMult)} SPH)`;
@@ -1747,7 +1797,7 @@
                         if (!getEl('duelNextBtn')) {
                             const nextBtn = document.createElement('button');
                             nextBtn.id = 'duelNextBtn'; nextBtn.className = 'btn btn-outline'; nextBtn.style.cssText = 'width:100%;margin-top:12px;';
-                            nextBtn.textContent = '➡ Следующий раунд (x2.5)';
+                            nextBtn.textContent = '➡ Следующий раунд (x3.1)';
                             nextBtn.onclick = () => {
                                 getEl('duelNextBtn').remove();
                                 startRound(dropPool);
@@ -1755,15 +1805,15 @@
                             ring.parentElement.appendChild(nextBtn);
                         }
                     } else if (currentRound === 2) {
-                        roundMult = 2.5;
-                        getEl('duelResult').textContent = `Раунд 2 пройден! Доступно: x2.5`;
+                        roundMult = 3.1;
+                        getEl('duelResult').textContent = `Раунд 2 пройден! Доступно: x3.1`;
                         getEl('duelResult').className = 'result-badge neutral-text';
                         getEl('duelCashoutBtn').textContent = `Забрать (${formatNum(betAmount * roundMult)} SPH)`;
                         
                         if (!getEl('duelNextBtn')) {
                             const nextBtn = document.createElement('button');
                             nextBtn.id = 'duelNextBtn'; nextBtn.className = 'btn btn-outline'; nextBtn.style.cssText = 'width:100%;margin-top:12px;';
-                            nextBtn.textContent = '➡ Финальный раунд (x5.5)';
+                            nextBtn.textContent = '➡ Финальный раунд (x5)';
                             nextBtn.onclick = () => {
                                 getEl('duelNextBtn').remove();
                                 startRound(dropPool);
@@ -1771,7 +1821,7 @@
                             ring.parentElement.appendChild(nextBtn);
                         }
                     } else if (currentRound === 3) {
-                        roundMult = 5.5;
+                        roundMult = 5;
                         isPlaying = false;
                         const winAmt = Math.floor(betAmount * roundMult);
                         state.balance += winAmt; saveBalance();
@@ -1822,7 +1872,7 @@
             
             <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-weight:600;">
                 <span>Шанс: <span id="upgChanceVal" style="color:var(--gold)">50%</span></span>
-                <span>Множитель: <span id="upgMultVal" style="color:var(--text)">1.71x</span></span>
+                <span>Множитель: <span id="upgMultVal" style="color:var(--white)">1.90x</span></span>
             </div>
             <input type="range" class="dice-slider" id="upgSlider" min="10" max="90" value="50" step="5">
             
@@ -1838,7 +1888,7 @@
         function updateWheel() {
             chance = parseInt(slider.value, 10);
             chanceVal.textContent = chance + '%';
-            let mult = (95 / chance) * 0.8;
+            let mult = 95 / chance;
             multVal.textContent = mult.toFixed(2) + 'x';
             
             wheelBg.style.background = `conic-gradient(var(--gold) 0% ${chance}%, #0f1832 ${chance}% 100%)`;
@@ -1856,9 +1906,16 @@
             getEl('upgPlay').disabled = true;
             const old = c.querySelector('.result-badge'); if (old) old.remove();
 
-            const rand = secureRandom() * 360;
+            const isWin = secureRandom() * 100 < chance;
+            let targetAngle;
+            if (isWin) {
+                targetAngle = secureRandom() * (chance * 3.6);
+            } else {
+                targetAngle = (chance * 3.6) + secureRandom() * (360 - (chance * 3.6));
+            }
+            
             const turns = 360 * 5;
-            const totalRotation = currentRotation + turns + (360 - rand);
+            const totalRotation = currentRotation + turns + (360 - targetAngle);
             currentRotation = totalRotation;
             
             arrow.style.transform = `rotate(${totalRotation}deg)`;
@@ -1868,8 +1925,8 @@
                 isSpinning = false;
                 getEl('upgPlay').disabled = false;
                 
-                if (rand <= (chance * 3.6)) {
-                    const mult = (95 / chance) * 0.8;
+                if (isWin) {
+                    const mult = 95 / chance;
                     const winAmt = Math.floor(betAmount * mult);
                     state.balance += winAmt; saveBalance();
                     showResult(c, `🎉 Успех! ${mult.toFixed(2)}x +${formatNum(winAmt)} SPH`, 'win');
@@ -1913,12 +1970,6 @@
             let found = arr.find(p => p.id === myId);
             
             if (found) {
-                const diff = state.balance - (found.balance || 0);
-                if (diff > 100000000) {
-                    state.balance = found.balance;
-                    updateHeader();
-                    return;
-                }
                 found.balance = state.balance;
                 found.name = state.nick;
             } else {
@@ -2025,6 +2076,7 @@
         }
         const isNotBanned = await checkBan();
         if (!isNotBanned) return;
+        await syncBalance();
         renderScreen();
     }
 
