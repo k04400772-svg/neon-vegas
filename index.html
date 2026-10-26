@@ -162,8 +162,19 @@
 
         /* UPGRADER */
         .upg-wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 20px auto; border-radius: 50%; }
-        .upg-wheel-bg { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none; border: 4px solid var(--card); box-shadow: 0 0 20px rgba(0,0,0,0.8); transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1); }
-        .upg-pointer { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid var(--white); z-index: 10; }
+        .upg-wheel-bg { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none; border: 4px solid var(--card); box-shadow: 0 0 20px rgba(0,0,0,0.8); }
+        .upg-pointer { 
+            position: absolute; top: 50%; left: 50%; 
+            width: 140px; height: 4px; background: var(--white); 
+            transform-origin: 0 50%; z-index: 10; 
+            border-radius: 4px; box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        .upg-pointer::after {
+            content: ''; position: absolute; right: -6px; top: -6px;
+            width: 0; height: 0; border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent; border-left: 12px solid var(--white);
+        }
         .upg-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: var(--bg); border-radius: 50%; border: 2px solid var(--gold); z-index: 5; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: none; color: var(--gold); }
 
         /* SLOTS */
@@ -233,7 +244,7 @@
         .roul-num-btn { aspect-ratio: 1; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 700; font-size: 14px; cursor: pointer; touch-action: manipulation; display: flex; align-items: center; justify-content: center; padding: 0; }
         .roul-num-btn.red { background: rgba(239, 68, 68, 0.3); color: #fff; }
         .roul-num-btn.black { background: rgba(0, 0, 0, 0.5); color: #fff; }
-        .roul-num-btn.green { background: rgba(34, 197, 94, 0.3); color: #fff; grid-column: span 6; }
+        .roul-num-btn.green { background: rgba(34, 197, 94, 0.3); color: #fff; }
         .roul-num-btn.active { border: 2px solid var(--gold); box-shadow: 0 0 10px rgba(212,175,55,0.5); }
 
         .hidden { display: none !important; }
@@ -341,10 +352,9 @@
     function loadState() {
         state.nick = localStorage.getItem(LS.nick) || '';
         
-        // Баланс выдается ТОЛЬКО при первом заходе (если его нет в localStorage)
         const savedBalance = localStorage.getItem(LS.balance);
         if (savedBalance === null) {
-            state.balance = 1111111; // Стартовый капитал
+            state.balance = 1111111;
         } else {
             state.balance = parseInt(savedBalance, 10);
         }
@@ -373,13 +383,11 @@
             if (!Array.isArray(arr)) arr = [];
             const me = arr.find(p => p.id === state.tgId);
             
-            // Если игрока нет в облаке, отправляем ему стартовый баланс
             if (!me) {
                 state.balance = 1111111;
                 localStorage.setItem(LS.balance, String(state.balance));
                 savePlayerScore();
             } else {
-                // Если есть - синхронизируем
                 state.balance = me.balance;
                 localStorage.setItem(LS.balance, String(state.balance));
             }
@@ -1318,7 +1326,6 @@
             flipping = true; state.balance -= bet; saveBalance();
             resultEl.textContent = ''; resultEl.className = 'result-badge';
             
-            // Принудительный сброс флага через 2 секунды (защита от залипания)
             setTimeout(() => { flipping = false; }, 2000);
 
             const outcome = secureRandom() < 0.5 ? 'heads' : 'tails';
@@ -1639,6 +1646,9 @@
                 <button class="btn" id="roulOdd">Нечет (x2)</button>
                 <button class="btn" id="roulLow">1-18 (x2)</button>
                 <button class="btn" id="roulHigh">19-36 (x2)</button>
+                <button class="btn btn-filled" id="roulDozen1" style="padding:8px;">1-12 (x3)</button>
+                <button class="btn btn-filled" id="roulDozen2" style="padding:8px;">13-24 (x3)</button>
+                <button class="btn btn-filled" id="roulDozen3" style="padding:8px; grid-column: span 2;">25-36 (x3)</button>
             </div>
 
             <div class="roul-num-container">
@@ -1741,6 +1751,9 @@
         getEl('roulOdd').addEventListener('click', (e) => selectBet('odd', e.target));
         getEl('roulLow').addEventListener('click', (e) => selectBet('low', e.target));
         getEl('roulHigh').addEventListener('click', (e) => selectBet('high', e.target));
+        getEl('roulDozen1').addEventListener('click', (e) => selectBet('dozen1', e.target));
+        getEl('roulDozen2').addEventListener('click', (e) => selectBet('dozen2', e.target));
+        getEl('roulDozen3').addEventListener('click', (e) => selectBet('dozen3', e.target));
 
         getEl('roulSpin').addEventListener('click', () => {
             if (spinning) return;
@@ -1755,12 +1768,18 @@
             getEl('roulSpin').disabled = true;
             const old = c.querySelector('.result-badge'); if (old) old.remove();
             
+            // 1. Определяем выигрышное число
             const winNum = Math.floor(secureRandom() * 37);
             
+            // 2. Вычисляем угол для кручения (5 полных оборотов + нужный сектор)
             const sectorAngle = (Math.PI * 2) / 37;
-            const targetAngle = -(winNum * sectorAngle); 
+            // Стрелка указывает на 0 (сверху). Чтобы число winNum оказалось под стрелкой,
+            // нужно повернуть колесо на 360 - (winNum * угол сектора)
+            const targetAngleDeg = winNum * (360 / 37);
+            const totalRotationDeg = 360 * 5 + (360 - targetAngleDeg);
+            
             const startRot = rotation;
-            const endRot = startRot + (Math.PI * 2 * 5) + targetAngle - (startRot % (Math.PI * 2));
+            const endRot = startRot + totalRotationDeg;
             
             const duration = 4000;
             const startTime = performance.now();
@@ -1769,14 +1788,15 @@
                 const elapsed = now - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 const easeOut = 1 - Math.pow(1 - progress, 3);
-                const currentAngle = startRot + (endRot - startRot) * easeOut;
+                const currentAngleDeg = startRot + (endRot - startRot) * easeOut;
                 
-                drawWheel(currentAngle);
+                // Конвертируем градусы в радианы для Canvas
+                drawWheel(currentAngleDeg * Math.PI / 180);
                 
                 if (progress < 1) {
                     requestAnimationFrame(animate);
                 } else {
-                    rotation = endRot % (Math.PI * 2);
+                    rotation = endRot;
                     spinning = false;
                     getEl('roulSpin').disabled = false;
                     checkWin(winNum);
@@ -1805,6 +1825,9 @@
                 else if (betType === 'odd' && !isEven) { win = true; mult = 2; }
                 else if (betType === 'low' && isLow) { win = true; mult = 2; }
                 else if (betType === 'high' && !isLow) { win = true; mult = 2; }
+                else if (betType === 'dozen1' && winNum >= 1 && winNum <= 12) { win = true; mult = 3; }
+                else if (betType === 'dozen2' && winNum >= 13 && winNum <= 24) { win = true; mult = 3; }
+                else if (betType === 'dozen3' && winNum >= 25 && winNum <= 36) { win = true; mult = 3; }
             }
 
             if (win) {
@@ -2016,9 +2039,9 @@
         wrap.style.cssText = 'margin:0 16px;';
         wrap.innerHTML = `
             <div class="upg-wheel-wrapper">
-                <div class="upg-pointer"></div>
                 <div class="upg-wheel-bg" id="upgWheelBg"></div>
                 <div class="upg-center">🎯</div>
+                <div class="upg-pointer" id="upgArrow" style="transform: rotate(0deg);"></div>
             </div>
             
             <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-weight:600;">
@@ -2032,10 +2055,10 @@
         `;
         c.appendChild(wrap);
 
-        const wheelBg = getEl('upgWheelBg'), slider = getEl('upgSlider');
+        const wheelBg = getEl('upgWheelBg'), arrow = getEl('upgArrow'), slider = getEl('upgSlider');
         const chanceVal = getEl('upgChanceVal'), multVal = getEl('upgMultVal');
         let isSpinning = false, betAmount = 0, chance = 50;
-        let upgWrapperRot = 0; // Переменная для накопления угла
+        let currentRotation = 0;
 
         function updateWheel() {
             chance = parseInt(slider.value, 10);
@@ -2043,6 +2066,7 @@
             let mult = 95 / chance;
             multVal.textContent = mult.toFixed(2) + 'x';
             
+            // Круг всегда стоит на месте, меняется только его заливка
             wheelBg.style.background = `conic-gradient(var(--gold) 0% ${chance}%, #0f1832 ${chance}% 100%)`;
         }
 
@@ -2058,10 +2082,11 @@
             getEl('upgPlay').disabled = true;
             const old = c.querySelector('.result-badge'); if (old) old.remove();
 
-            // Определяем результат ЗАРАНЕЕ (как в честном казино)
+            // Определяем результат ЗАРАНЕЕ
             const isWin = secureRandom() * 100 < chance;
             
-            // Вычисляем угол для стрелки
+            // Вычисляем, куда должна указывать стрелка (0 градусов = верх)
+            // Золотая зона: от 0 до chance * 3.6 градусов (по часовой стрелке от верха)
             let targetAngleDeg;
             if (isWin) {
                 targetAngleDeg = secureRandom() * (chance * 3.6);
@@ -2069,20 +2094,16 @@
                 targetAngleDeg = (chance * 3.6) + secureRandom() * (360 - (chance * 3.6));
             }
 
-            // Крутим так, чтобы стрелка (которая сверху) указала на нужный угол
-            // Так как стрелка сверху (0 градусов), а фон крутится по часовой,
-            // нам нужно повернуть фон на 360 - targetAngle
-            const currentRot = upgWrapperRot % 360;
-            const baseRot = upgWrapperRot - currentRot;
-            const rotationToTarget = (360 - targetAngleDeg) % 360;
-            const totalRotation = baseRot + 360 * 5 + rotationToTarget;
+            // Стрелка у нас изначально смотрит вправо (0 градусов в CSS), 
+            // а нам нужно, чтобы она смотрела на targetAngleDeg (где 0 = верх).
+            // Поэтому добавляем 90 градусов для компенсации.
+            const baseRot = Math.ceil(currentRotation / 360) * 360;
+            currentRotation = baseRot + 360 * 5 + targetAngleDeg - 90; 
             
-            upgWrapperRot = totalRotation;
-            
-            wheelBg.style.transform = `rotate(${totalRotation}deg)`;
+            arrow.style.transform = `rotate(${currentRotation}deg)`;
             
             const onEnd = () => {
-                wheelBg.removeEventListener('transitionend', onEnd);
+                arrow.removeEventListener('transitionend', onEnd);
                 isSpinning = false;
                 getEl('upgPlay').disabled = false;
                 
@@ -2096,8 +2117,8 @@
                 }
             };
             
-            wheelBg.addEventListener('transitionend', onEnd);
-            registerCleanup(() => { wheelBg.removeEventListener('transitionend', onEnd); });
+            arrow.addEventListener('transitionend', onEnd);
+            registerCleanup(() => { arrow.removeEventListener('transitionend', onEnd); });
         });
 
         registerCleanup(() => { isSpinning = false; });
@@ -2152,7 +2173,10 @@
         card.innerHTML = '<div class="center" style="font-size:20px;font-weight:800;margin-bottom:16px;color:var(--gold);">ТОП-10</div><div id="topList" class="center small-text">Загрузка...</div>';
         c.appendChild(card);
         const listEl = card.querySelector('#topList');
+        
+        // ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ
         const board = await fetchLeaderboard();
+        
         let html = ''; const medals = ['🥇', '🥈', '🥉'];
         if (board.length === 0) {
             html = '<div class="small-text" style="padding:20px;">Пусто. Сыграйте!</div>';
