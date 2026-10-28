@@ -2,535 +2,2272 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Regal Sapphires</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&family=Roboto+Mono:wght@700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         :root {
-            --bg-color: #fcfcfc;
-            --card-bg: #ffffff;
-            --text-main: #1a1a1a;
-            --text-muted: #666666;
+            --bg: #0a0f1c;
+            --card: #121829;
             --gold: #d4af37;
             --gold-light: #f3e5ab;
-            --gold-dark: #aa8c2c;
-            --accent: #b8860b;
-            --border: #e0e0e0;
-            --shadow: rgba(0, 0, 0, 0.05);
+            --white: #ffffff;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
         }
+        html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; overflow: hidden; }
+        body { display: flex; flex-direction: column; background: radial-gradient(circle at 50% 0%, #16244b 0%, var(--bg) 70%); }
+        #app { display: flex; flex-direction: column; height: 100%; max-width: 500px; margin: 0 auto; width: 100%; position: relative; }
+        
+        /* HEADER */
+        .header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 64px; background: rgba(10, 15, 28, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(212, 175, 55, 0.2); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 1000; }
+        .header-left { color: var(--gold); font-weight: 600; font-size: 14px; max-width: 30%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .header-center { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 15px; letter-spacing: 1px; color: var(--white); cursor: pointer; padding: 10px; opacity: 0.9; }
+        .header-right { display: flex; align-items: center; gap: 8px; font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 16px; color: var(--white); }
+        
+        /* БЕЛАЯ МОНЕТА */
+        .coin-icon { 
+            width: 20px; height: 20px; border-radius: 50%; 
+            background: radial-gradient(circle at 30% 30%, #ffffff, #e2e8f0 60%, #94a3b8);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            display: inline-block; flex-shrink: 0; border: 1px solid #cbd5e1;
+        }
+        
+        .sph-text { font-size: 12px; font-weight: 700; color: var(--gold-light); margin-left: 2px; letter-spacing: 0.5px; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        .content { flex: 1; overflow-y: auto; padding-top: 76px; padding-bottom: 90px; -webkit-overflow-scrolling: touch; }
+        .content::-webkit-scrollbar { width: 4px; }
+        .content::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+        /* NAV */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 70px; background: rgba(10, 15, 28, 0.95); backdrop-filter: blur(15px); border-top: 1px solid rgba(212, 175, 55, 0.2); display: flex; z-index: 1000; }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; color: var(--text-dim); background: none; border: none; cursor: pointer; transition: all 0.2s; touch-action: manipulation; }
+        .nav-btn .nav-icon { font-size: 22px; line-height: 1; filter: grayscale(1); transition: all 0.2s; }
+        .nav-btn.active { color: var(--gold); font-weight: 700; }
+        .nav-btn.active .nav-icon { filter: grayscale(0) drop-shadow(0 0 8px rgba(212, 175, 55, 0.8)); }
 
-        #app {
-            width: 100%;
-            max-width: 480px;
-            height: 100vh;
-            max-height: 900px;
-            background: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        /* UI ELEMENTS (Минимализм) */
+        .card { background: var(--card); border: 1px solid rgba(212, 175, 55, 0.15); border-radius: 12px; padding: 16px; margin: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+        
+        .btn { 
+            border: 1px solid var(--gold); border-radius: 8px; padding: 14px 20px; 
+            font-size: 15px; font-weight: 700; cursor: pointer; 
+            transition: all 0.2s; font-family: 'Montserrat', sans-serif; 
+            color: var(--gold); background: transparent;
+            letter-spacing: 0.5px; outline: none; touch-action: manipulation;
         }
+        .btn:active { background: rgba(212, 175, 55, 0.15); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--text-dim); color: var(--text-dim); }
+        
+        .btn-filled { 
+            background: var(--gold); color: #000; border: none;
+        }
+        .btn-filled:active { background: var(--gold-light); }
+        
+        .btn-danger { border-color: var(--danger); color: var(--danger); }
+        .btn-danger:active { background: rgba(239, 68, 68, 0.15); }
+        
+        .input { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.3); background: rgba(0, 0, 0, 0.4); color: var(--white); font-size: 18px; font-family: 'Roboto Mono', monospace; font-weight: 700; outline: none; transition: all 0.2s; touch-action: manipulation; }
+        .input:focus { border-color: var(--gold); }
 
-        @media (min-width: 481px) {
-            #app {
-                border-radius: 24px;
-                border: 1px solid var(--border);
-                overflow: hidden;
-            }
+        /* MENU */
+        .games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+        .game-card { 
+            background: var(--card); border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 12px; padding: 20px 14px; text-align: center; cursor: pointer; 
+            transition: all 0.2s; touch-action: manipulation; position: relative;
         }
+        .game-card:active { border-color: var(--gold); background: rgba(212, 175, 55, 0.05); }
+        .game-card .game-emoji { font-size: 36px; margin-bottom: 10px; display: block; pointer-events: none; }
+        .game-card .game-name { font-size: 13px; font-weight: 700; letter-spacing: 0.5px; color: var(--text); pointer-events: none; }
 
-        header {
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-        }
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(5, 8, 20, 0.95); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 20px; }
+        .modal { background: var(--card); border: 1px solid var(--gold); border-radius: 16px; padding: 24px; width: 100%; max-width: 380px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8); }
+        .modal h3 { font-size: 20px; margin-bottom: 20px; color: var(--gold); text-align: center; font-weight: 800; }
+        .modal p { font-size: 15px; line-height: 1.6; color: var(--text); text-align: center; }
 
-        .logo {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--gold-dark);
-            letter-spacing: 0.5px;
-        }
+        /* GAME HEADER */
+        .game-header { display: flex; align-items: center; justify-content: space-between; margin: 16px; }
+        .game-title { font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: 1px; }
+        .instruction-block { background: rgba(212, 175, 55, 0.05); border-left: 3px solid var(--gold); padding: 16px; margin: 16px; border-radius: 0 8px 8px 0; }
+        .instruction-block .instr-title { font-size: 12px; font-weight: 800; color: var(--gold); letter-spacing: 1px; margin-bottom: 8px; }
+        .instruction-block .instr-text { font-size: 13px; line-height: 1.6; color: var(--text-dim); }
 
-        .balance-container {
-            background: var(--bg-color);
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--gold-light);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        /* BET INPUTS */
+        .bet-row { display: flex; gap: 10px; margin: 16px; align-items: center; }
+        .bet-row .input { flex: 1; }
+        .quick-bets { display: flex; gap: 8px; margin: 0 16px 16px; }
+        .quick-bets button { 
+            flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: var(--text); border-radius: 8px; padding: 12px 0; font-size: 13px; font-weight: 600; 
+            cursor: pointer; font-family: 'Roboto Mono', monospace; transition: all 0.2s; outline: none; touch-action: manipulation;
         }
+        .quick-bets button:active { background: rgba(212, 175, 55, 0.2); border-color: var(--gold); }
 
-        .balance-icon {
-            color: var(--gold);
-            font-size: 14px;
-        }
+        /* RESULT */
+        .result-badge { text-align: center; font-size: 16px; font-weight: 700; margin: 16px; min-height: 24px; pointer-events: none; }
+        .win-text { color: var(--success); }
+        .lose-text { color: var(--danger); }
+        .neutral-text { color: var(--gold); }
 
-        .balance-value {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-main);
-        }
+        /* LEADERBOARD */
+        .leader-row { display: flex; align-items: center; padding: 14px 16px; border-radius: 8px; background: var(--card); margin-bottom: 8px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .leader-row.me { border-color: var(--gold); }
+        .leader-rank { width: 30px; font-weight: 800; font-size: 16px; color: var(--text-dim); text-align: center; font-family: 'Roboto Mono', monospace; }
+        .leader-row:nth-child(1) .leader-rank { color: var(--gold); }
+        .leader-name { flex: 1; font-weight: 600; font-size: 15px; padding: 0 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--white); }
+        .leader-balance { font-family: 'Roboto Mono', monospace; color: var(--gold-light); font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; }
 
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: none;
-        }
+        /* PROFILE */
+        .profile-avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--card); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 800; color: var(--gold); margin: 0 auto 16px; }
 
-        .content.active {
-            display: block;
-        }
+        /* BONUS */
+        .bonus-timer { font-family: 'Roboto Mono', monospace; font-size: 40px; font-weight: 700; color: var(--white); margin: 20px 0; text-align: center; }
 
-        /* Lobby Grid */
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            padding-bottom: 20px;
-        }
+        /* DICE */
+        .dice-wrapper { margin: 16px; }
+        .dice-bar-container { position: relative; height: 40px; background: rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px; display: flex; pointer-events: none; }
+        .dice-bar-lose { background: var(--danger); transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: rgba(255,255,255,0.7); }
+        .dice-bar-win { background: var(--success); transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: rgba(255,255,255,0.9); }
+        .dice-slider { width: 100%; accent-color: var(--gold); height: 10px; cursor: pointer; touch-action: manipulation; }
+        .dice-display { text-align: center; font-size: 64px; font-weight: 900; font-family: 'Roboto Mono', monospace; color: var(--white); margin: 20px 0; pointer-events: none; }
+        .dice-display.win { color: var(--success); }
+        .dice-display.lose { color: var(--danger); }
 
-        .game-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
+        /* WHEEL */
+        .wheel-wrapper { position: relative; width: 300px; height: 300px; margin: 20px auto; }
+        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--gold); z-index: 10; }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; position: relative; overflow: hidden; border: 4px solid var(--card); box-shadow: 0 0 20px rgba(0,0,0,0.8); transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1); }
+        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; background: var(--bg); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 5; }
+        .wheel-label { position: absolute; top: 50%; left: 50%; font-size: 14px; font-weight: 800; color: #fff; transform-origin: 0 0; pointer-events: none; z-index: 2; }
 
-        .game-card:active {
-            transform: scale(0.97);
-            border-color: var(--gold);
-        }
+        /* CRASH */
+        #crashCanvas { width: 100%; height: 240px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+        .crash-multiplier { text-align: center; font-size: 56px; font-weight: 900; font-family: 'Roboto Mono', monospace; color: var(--white); margin: 16px 0; pointer-events: none; }
+        .crash-multiplier.crashed { color: var(--danger); }
 
-        .game-icon {
-            font-size: 32px;
-            margin-bottom: 8px;
-        }
+        /* MINES */
+        .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 16px; }
+        .mine-cell { aspect-ratio: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: all 0.1s; touch-action: manipulation; }
+        .mine-cell:active { background: rgba(212, 175, 55, 0.2); }
+        .mine-cell.safe { background: rgba(34, 197, 94, 0.2); border-color: var(--success); pointer-events: none; }
+        .mine-cell.bomb { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); pointer-events: none; }
+        .mine-cell.disabled { pointer-events: none; opacity: 0.3; }
 
-        .game-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--text-main);
+        /* UPGRADER */
+        .upg-wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 20px auto; border-radius: 50%; }
+        .upg-wheel-bg { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none; border: 4px solid var(--card); box-shadow: 0 0 20px rgba(0,0,0,0.8); }
+        .upg-pointer { 
+            position: absolute; top: 50%; left: 50%; 
+            width: 140px; height: 4px; background: var(--white); 
+            transform-origin: 0 50%; z-index: 10; 
+            border-radius: 4px; box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1);
         }
+        .upg-pointer::after {
+            content: ''; position: absolute; right: -6px; top: -6px;
+            width: 0; height: 0; border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent; border-left: 12px solid var(--white);
+        }
+        .upg-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: var(--bg); border-radius: 50%; border: 2px solid var(--gold); z-index: 5; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: none; color: var(--gold); }
 
-        .game-desc {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
+        /* SLOTS */
+        .slots-machine { display: flex; justify-content: center; gap: 10px; margin: 20px 16px; padding: 16px; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .slot-reel { width: 80px; height: 100px; background: var(--card); border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); }
+        .slot-strip { position: absolute; width: 100%; display: flex; flex-direction: column; align-items: center; transition: top 0.1s linear; }
+        .slot-symbol { width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 40px; flex-shrink: 0; }
 
-        /* Navigation Bar */
-        nav {
-            display: flex;
-            background: var(--card-bg);
-            border-top: 1px solid var(--border);
-            height: 60px;
-        }
+        /* BLACKJACK */
+        .bj-cards { display: flex; flex-wrap: wrap; gap: 8px; min-height: 80px; margin: 12px 0; justify-content: center; pointer-events: none; }
+        .bj-card { width: 50px; height: 70px; border-radius: 6px; background: #fff; color: #0a0f1c; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; border: 1px solid #cbd5e1; }
+        .bj-card.red { color: var(--danger); }
+        .bj-card.hidden { background: var(--card); color: var(--gold); font-size: 24px; border: 1px solid var(--gold); }
+        .bj-buttons { display: flex; gap: 12px; margin: 16px; }
+        .bj-buttons .btn { flex: 1; }
 
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 10px;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
+        /* COIN */
+        .coin-wrapper { perspective: 1000px; display: flex; justify-content: center; margin: 40px 0; height: 160px; align-items: center; pointer-events: none; }
+        .coin { width: 140px; height: 140px; position: relative; transform-style: preserve-3d; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.3, 1); }
+        .coin-face { position: absolute; width: 100%; height: 100%; border-radius: 50%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; font-size: 60px; border: 4px solid var(--gold); }
+        .coin-front { background: var(--card); transform: rotateX(0deg); }
+        .coin-back { background: var(--bg); transform: rotateX(180deg); }
 
-        .nav-item.active {
-            color: var(--gold-dark);
-        }
+        /* PLINKO */
+        #plinkoCanvas { width: 100%; height: 380px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); display: block; }
 
-        .nav-icon {
-            font-size: 20px;
-            margin-bottom: 2px;
-        }
+        /* TOWER */
+        .tower-row { display: flex; gap: 8px; margin: 8px 16px; justify-content: center; }
+        .tower-cell { flex: 1; max-width: 80px; aspect-ratio: 1.2; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; color: #fff; position: relative; touch-action: manipulation; }
+        .tower-cell:active { background: rgba(212, 175, 55, 0.2); }
+        .tower-cell.active-level { border-color: var(--gold); }
+        .tower-cell.safe { background: rgba(34, 197, 94, 0.2); border-color: var(--success); pointer-events: none; }
+        .tower-cell.bomb { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); pointer-events: none; }
+        .tower-cell.locked { opacity: 0.2; pointer-events: none; }
+        .tower-mult { position: absolute; top: 4px; right: 6px; font-size: 10px; color: var(--gold); font-weight: 700; pointer-events: none; }
 
-        /* Game Screen & Instructions Modal */
-        .game-screen {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            justify-content: space-between;
-        }
+        /* CUBE */
+        .cube-result { text-align: center; font-size: 90px; margin: 20px 0; min-height: 120px; line-height: 1; pointer-events: none; }
 
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+        /* DUEL */
+        .ring-container { position: relative; width: 100%; height: 260px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; margin: 16px 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; padding: 16px; overflow: hidden; }
+        .fighter { width: 64px; height: 64px; background: var(--card); border: 2px solid var(--gold); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; transition: all 0.5s ease; position: relative; pointer-events: none; }
+        .fighter .avatar { font-size: 26px; margin-bottom: 2px; }
+        .fighter.dead { transform: scale(0.5) translateY(100px); opacity: 0; }
+        .fighter.punch { animation: punchAnim 0.3s; }
+        @keyframes punchAnim { 0% { transform: scale(1); } 50% { transform: scale(1.2) translateX(10px); } 100% { transform: scale(1); } }
 
-        .back-btn {
-            background: none;
-            border: 1px solid var(--border);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-main);
-            cursor: pointer;
-        }
+        /* ADMIN */
+        .admin-player-row { background: var(--card); padding: 14px; border-radius: 8px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; flex-direction: column; gap: 6px; touch-action: manipulation; }
+        .admin-player-row:active { border-color: var(--gold); }
+        .admin-label { font-size: 15px; font-weight: 700; color: var(--white); display: flex; justify-content: space-between; pointer-events: none; }
+        .admin-sub { font-size: 12px; color: var(--text-dim); pointer-events: none; font-family: 'Roboto Mono', monospace; }
+        .admin-balance { color: var(--gold); font-weight: 700; font-family: 'Roboto Mono', monospace; display: flex; align-items: center; gap: 6px; }
+        .search-input { margin-bottom: 16px; }
 
-        .info-btn {
-            background: var(--gold-light);
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            font-weight: bold;
-            color: var(--gold-dark);
-            cursor: pointer;
-        }
+        /* BAN */
+        .ban-screen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; padding: 30px; text-align: center; }
 
-        .game-viewport {
-            flex: 1;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
+        /* ROULETTE SPECIFIC */
+        #rouletteCanvas { width: 100%; height: 320px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); display: block; margin: 0 16px; width: calc(100% - 32px); }
+        .roul-bets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px; }
+        .roul-bets-grid button { padding: 10px; font-size: 13px; }
+        
+        .roul-num-container { margin: 16px; }
+        .roul-num-title { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; text-align: center; }
+        .roul-num-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+        .roul-num-btn { aspect-ratio: 1; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-weight: 700; font-size: 14px; cursor: pointer; touch-action: manipulation; display: flex; align-items: center; justify-content: center; padding: 0; }
+        .roul-num-btn.red { background: rgba(239, 68, 68, 0.3); color: #fff; }
+        .roul-num-btn.black { background: rgba(0, 0, 0, 0.5); color: #fff; }
+        .roul-num-btn.green { background: rgba(34, 197, 94, 0.3); color: #fff; }
+        .roul-num-btn.active { border: 2px solid var(--gold); box-shadow: 0 0 10px rgba(212,175,55,0.5); }
 
-        .game-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
-        }
-
-        .btn-primary:active {
-            opacity: 0.9;
-        }
-
-        /* Instructions Overlay Modal */
-        .modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(4px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-        }
-
-        .modal-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            width: 85%;
-            max-width: 340px;
-            padding: 24px;
-            border-radius: 20px;
-            border: 1px solid var(--gold-light);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: left;
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--gold-dark);
-            margin-bottom: 12px;
-        }
-
-        .modal-text {
-            font-size: 13px;
-            line-height: 1.6;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        .modal-close {
-            width: 100%;
-            padding: 10px;
-            background: var(--bg-color);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-weight: 600;
-            color: var(--text-main);
-            cursor: pointer;
-        }
-
-        /* Profile & Leaderboard styles */
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: var(--text-main);
-        }
-
-        .card-box {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
+        .hidden { display: none !important; }
+        .center { text-align: center; }
+        .mt-8 { margin-top: 8px; }
+        .mt-12 { margin-top: 12px; }
+        .mt-16 { margin-top: 16px; }
+        .mb-8 { margin-bottom: 8px; }
+        .flex-row { display: flex; gap: 10px; }
+        .flex-row > * { flex: 1; }
+        .small-text { font-size: 13px; color: var(--text-dim); }
     </style>
 </head>
 <body>
-
 <div id="app">
-    <!-- Main Content Area -->
-    <div id="tab-lobby" class="content active">
-        <div class="section-title">Игровой зал</div>
-        <div class="games-grid" id="gamesGrid">
-            <!-- Сгенерировано динамически (20 игр) -->
+    <header class="header">
+        <div class="header-left" id="headerNick">Гость</div>
+        <div class="header-center" id="secretTrigger">by bogname</div>
+        <div class="header-right">
+            <span class="coin-icon"></span>
+            <span id="headerBalance">0</span>
+            <span class="sph-text">SPH</span>
         </div>
-    </div>
+    </header>
 
-    <div id="tab-wallet" class="content">
-        <div class="section-title">Кошелек</div>
-        <div class="card-box">
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">Ваш баланс сапфиров</p>
-            <h2 style="font-size: 28px; color: var(--gold-dark);" id="walletBalance">1,000 💎</h2>
-        </div>
-        <button class="btn-primary" style="width: 100%;">Пополнить / Вывести</button>
-    </div>
+    <main class="content" id="content"></main>
 
-    <div id="tab-leaders" class="content">
-        <div class="section-title">Таблица лидеров</div>
-        <div id="leadersList">
-            <!-- Лидеры -->
-        </div>
-    </div>
-
-    <div id="tab-profile" class="content">
-        <div class="section-title">Профиль</div>
-        <div class="card-box">
-            <p><strong>Игрок:</strong> SapphireUser</p>
-            <p style="margin-top: 6px; font-size: 13px; color: var(--text-muted);">ID: 78945612</p>
-        </div>
-    </div>
-
-    <!-- Gameplay Container Screen -->
-    <div id="tab-game" class="content">
-        <div class="game-screen">
-            <div class="game-header">
-                <button class="back-btn" onclick="switchTab('lobby')">← Назад</button>
-                <span id="currentGameTitle" style="font-weight: 600; font-size: 15px;"></span>
-                <button class="info-btn" onclick="toggleModal(true)">?</button>
-            </div>
-            <div class="game-viewport" id="gameViewport">
-                <!-- Динамический игровой контент -->
-            </div>
-            <div class="game-controls" id="gameControls">
-                <!-- Управление игрой -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Мобильная навигация -->
-    <nav>
-        <div class="nav-item active" onclick="switchTab('lobby', this)">
-            <span class="nav-icon">🎮</span>
-            Игры
-        </div>
-        <div class="nav-item" onclick="switchTab('wallet', this)">
-            <span class="nav-icon">💎</span>
-            Кошелек
-        </div>
-        <div class="nav-item" onclick="switchTab('leaders', this)">
-            <span class="nav-icon">🏆</span>
-            Лидеры
-        </div>
-        <div class="nav-item" onclick="switchTab('profile', this)">
-            <span class="nav-icon">👤</span>
-            Профиль
-        </div>
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-nav="menu"><span class="nav-icon">🎮</span><span>Игры</span></button>
+        <button class="nav-btn" data-nav="top"><span class="nav-icon">🏆</span><span>ТОП-10</span></button>
+        <button class="nav-btn" data-nav="bonus"><span class="nav-icon">🎁</span><span>Бонус</span></button>
+        <button class="nav-btn" data-nav="profile"><span class="nav-icon">👤</span><span>Профиль</span></button>
     </nav>
-
-    <!-- Модальное окно инструкции -->
-    <div class="modal-overlay" id="instructionModal">
-        <div class="modal-content">
-            <div class="modal-title" id="modalTitle">Как играть</div>
-            <div class="modal-text" id="modalText">Подробная инструкция к выбранной игре появится здесь. Изучите правила перед началом сессии, чтобы максимизировать свои шансы на победу и заработок сапфиров.</div>
-            <button class="modal-close" onclick="toggleModal(false)">Понятно</button>
-        </div>
-    </div>
 </div>
 
 <script>
-    let balance = 1000;
-    let currentGame = null;
+(function () {
+    'use strict';
 
-    const games = [
-        { id: 1, title: 'Thimbles', icon: '🔮', desc: 'Найди шарик под наперстком', rule: 'Следите за движением наперстка с жемчужиной. После остановки выберите правильный сектор, чтобы удвоить свою ставку в сапфирах. Будьте внимательны!' },
-        { id: 2, title: 'Roulette', icon: '🎡', desc: 'Классическая рулетка удачи', rule: 'Делайте ставку на цвет, сектор или число. Вращайте колесо рулетки и доверьтесь интуиции. Выигрыш выплачивается согласно коэффициентам выпавшего сектора.' },
-        { id: 3, title: 'Crystal Polish', icon: '✨', desc: 'Полировка кристаллов на скорость', rule: 'Тапайте по появляющимся граням кристалла как можно быстрее, чтобы очистить его от налета до окончания таймера. Чем выше скорость, тем чище камень.' },
-        { id: 4, title: 'Memory Pairs', icon: '🃏', desc: 'Запомни и найди пару символов', rule: 'Открывайте карточки по две штуки. Ваша задача — найти все одинаковые пары золотых символов за минимальное количество ходов и времени.' },
-        { id: 5, title: 'Sapphire Catcher', icon: '🧺', desc: 'Ловля падающих сапфиров', rule: 'Управляйте корзиной в нижней части экрана с помощью касаний. Ловите драгоценные сапфиры и избегайте падения пустых камней-пустышек.' },
-        { id: 6, title: 'Golden Platform', icon: '🚀', desc: 'Обход препятствий на платформе', rule: 'Платформа движется вперед. Вовремя совершайте прыжки или смену полосы движения, чтобы успешно обходить преграды и собирать бонусные очки.' },
-        { id: 7, title: 'Merge Crystals', icon: '🔷', desc: 'Объединяй одинаковые кристаллы', rule: 'Перетаскивайте одинаковые кристаллы друг на друга, чтобы синтезировать более крупные и ценные драгоценные камни высшего порядка.' },
-        { id: 8, title: 'Coin Flip', icon: '🪙', desc: 'Орел или решка', rule: 'Выберите сторону золотой монеты и сделайте ставку. Угадайте выпавшую сторону и мгновенно удвойте поставленные сапфиры.' },
-        { id: 9, title: 'Lucky Dice', icon: '🎲', desc: 'Бросок костей', rule: 'Бросьте игральные кости и наберите сумму очков больше, чем у виртуального дилера. Простой и быстрый раунд на удачу.' },
-        { id: 10, title: 'Minesweeper', icon: '💣', desc: 'Поиск золота без мин', rule: 'Открывайте безопасные плитки на игровом поле. Каждый успешный шаг увеличивает множитель награды, но один взрыв аннулирует ставку.' },
-        { id: 11, title: 'Tower Stack', icon: '🏗️', desc: 'Строительство башни', rule: 'Останавливайте движущиеся блоки точно друг над другом, чтобы возвести самую высокую золотую башню без обрушений.' },
-        { id: 12, title: 'Wheel of Fortune', icon: '🌀', desc: 'Колесо фортуны', rule: 'Запустите вращение большого колеса. Сектор, на котором оно остановится, определяет размер вашего мгновенного бонуса.' },
-        { id: 13, title: 'Pathfinder', icon: '🗺️', desc: 'Поиск безопасной тропы', rule: 'Пройдите через минное поле по невидимому безопасному маршруту. Рискуйте ради крупных множителей.' },
-        { id: 14, title: 'Gold Rush', icon: '⛏️', desc: 'Добыча золота в шахте', rule: 'Вовремя останавливайте шкалу силы удара кирки, чтобы добыть самый крупный самородок за отведенные попытки.' },
-        { id: 15, title: 'High-Low', icon: '📈', desc: 'Больше или меньше', rule: 'Угадайте, будет ли следующее случайное число выше или ниже текущего значения. Серия побед приносит супер-приз.' },
-        { id: 16, title: 'Color Match', icon: '🎨', desc: 'Совмещение цветов', rule: 'Быстро сопоставляйте падающие цветовые потоки с правильной базой до истечения шкалы времени.' },
-        { id: 17, title: 'Card Shark', icon: '🎴', desc: 'Старшая карта', rule: 'Вытяните карту выше рангом, чем карта дилера. Проявите хладнокровие в карточной дуэли.' },
-        { id: 18, title: 'Slot 777', icon: '🎰', desc: 'Мини-слоты', rule: 'Соберите комбинацию из трех одинаковых символов царских сапфиров на линии барабана.' },
-        { id: 19, title: 'Balancing Act', icon: '⚖️', desc: 'Удержание баланса', rule: 'Балансируйте чаши весов, корректируя вес падающих предметов, чтобы избежать перевеса.' },
-        { id: 20, title: 'Zen Tap', icon: '🧘', desc: 'Ритмичные тапы', rule: 'Нажимайте на появляющиеся золотые сферы строго в ритм фоновой мелодии для максимального счета.' }
-    ];
+    const CLOUD_URL = "https://api.jsonbin.io/v3/b/6ade1189ac6210605a50e15e";
+    const API_KEY = "$2a$10$Uej2IQIZlXOLtotKvDo3Iek.93rZ5jlR7t8wq5kFLqb4/AlHTrK0O"; 
+    const ENCODED_PASS = "0LfQsNC50LrQsDE5NTY3OA==";
 
-    function initLobby() {
-        const grid = document.getElementById('gamesGrid');
-        grid.innerHTML = games.map(g => `
-            <div class="game-card" onclick="openGame(${g.id})">
-                <div class="game-icon">${g.icon}</div>
-                <div class="game-title">${g.title}</div>
-                <div class="game-desc">${g.desc}</div>
-            </div>
-        `).join('');
+    const LS = {
+        nick: 'nv_nick',
+        balance: 'nv_balance',
+        bonusTime: 'nv_bonus_ts',
+        tgId: 'nv_tg_id'
+    };
+
+    let state = {
+        nick: '', balance: 0, currentScreen: 'menu', currentGame: null, cleanupFns: [],
+        bonusInterval: null, tgId: null, adminScreen: 'list', adminSelectedPlayer: null, adminPlayers: []
+    };
+
+    function getEl(id) { return document.getElementById(id); }
+    function formatNum(n) { return Math.floor(n).toLocaleString('ru-RU'); }
+
+    function secureRandom() {
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        return array[0] / 4294967296;
     }
 
-    function switchTab(tabName, element) {
-        document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
-        if (element) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-        }
+    function checkPassword(input) {
+        try {
+            const decoded = decodeURIComponent(escape(atob(ENCODED_PASS)));
+            return input === decoded;
+        } catch (e) { return false; }
+    }
+
+    async function checkBan() {
+        if (!state.tgId || state.tgId === 'local_user') return true;
+        try {
+            const res = await fetch(CLOUD_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+            const data = await res.json();
+            let arr = data.record;
+            if (typeof arr === 'string') arr = JSON.parse(arr);
+            if (!Array.isArray(arr)) arr = [];
+            const me = arr.find(p => p.id === state.tgId);
+            if (me && me.bannedUntil && me.bannedUntil > Date.now()) {
+                showBanScreen(me.banReason, me.bannedUntil);
+                return false;
+            }
+            return true;
+        } catch (e) { return true; }
+    }
+
+    function showBanScreen(reason, until) {
+        const overlay = document.createElement('div');
+        overlay.className = 'ban-screen';
+        const remainingMs = until - Date.now();
+        const mins = Math.floor(remainingMs / 60000);
+        const hours = Math.floor(mins / 60);
+        overlay.innerHTML = `
+            <div style="font-size: 80px; margin-bottom: 20px;">🚫</div>
+            <h1 style="color: var(--danger); margin-bottom: 20px; font-size: 24px;">Доступ закрыт</h1>
+            <p style="color: var(--text); font-size: 16px; margin-bottom: 10px;">Причина: <b>${reason}</b></p>
+            <p style="color: var(--text-dim); font-size: 14px;">Осталось: ${hours > 0 ? hours + ' ч. ' : ''}${mins % 60} мин.</p>
+            <button class="btn mt-16" onclick="location.reload()">Понятно</button>`;
+        document.body.appendChild(overlay);
+        document.getElementById('content').style.display = 'none';
+    }
+
+    function loadState() {
+        state.nick = localStorage.getItem(LS.nick) || '';
         
-        if (tabName === 'lobby') {
-            document.getElementById('tab-lobby').classList.add('active');
-        } else if (tabName === 'wallet') {
-            document.getElementById('tab-wallet').classList.add('active');
-        } else if (tabName === 'leaders') {
-            document.getElementById('tab-leaders').classList.add('active');
-            renderLeaders();
-        } else if (tabName === 'profile') {
-            document.getElementById('tab-profile').classList.add('active');
+        const savedBalance = localStorage.getItem(LS.balance);
+        if (savedBalance === null) {
+            state.balance = 1111111;
+        } else {
+            state.balance = parseInt(savedBalance, 10);
         }
+        if (isNaN(state.balance)) state.balance = 1111111;
+        
+        if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
+            state.tgId = Telegram.WebApp.initDataUnsafe.user.id.toString();
+            let tgName = Telegram.WebApp.initDataUnsafe.user.first_name || 'Гость';
+            if (!localStorage.getItem(LS.nick)) {
+                localStorage.setItem(LS.nick, tgName);
+                state.nick = tgName;
+            }
+        } else {
+            state.tgId = localStorage.getItem(LS.tgId) || 'local_user';
+        }
+        localStorage.setItem(LS.tgId, state.tgId);
+    }
+
+    async function syncBalance() {
+        if (!state.tgId || state.tgId === 'local_user') return;
+        try {
+            const res = await fetch(CLOUD_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+            const data = await res.json();
+            let arr = data.record;
+            if (typeof arr === 'string') arr = JSON.parse(arr);
+            if (!Array.isArray(arr)) arr = [];
+            const me = arr.find(p => p.id === state.tgId);
+            
+            if (!me) {
+                state.balance = 1111111;
+                localStorage.setItem(LS.balance, String(state.balance));
+                savePlayerScore();
+            } else {
+                state.balance = me.balance;
+                localStorage.setItem(LS.balance, String(state.balance));
+            }
+            updateHeader();
+        } catch (e) {}
+    }
+
+    function saveBalance() {
+        if (state.balance < 0) state.balance = 0; 
+        localStorage.setItem(LS.balance, String(state.balance));
+        updateHeader();
+        savePlayerScore();
+    }
+
+    function updateHeader() {
+        getEl('headerNick').textContent = state.nick || 'Гость';
+        getEl('headerBalance').textContent = formatNum(state.balance);
+    }
+
+    function registerCleanup(fn) { state.cleanupFns.push(fn); }
+    function clearAllTimers() {
+        state.cleanupFns.forEach(fn => { try { fn(); } catch (e) {} });
+        state.cleanupFns = [];
+        if (state.bonusInterval) { clearInterval(state.bonusInterval); state.bonusInterval = null; }
+    }
+
+    function setScreen(name) {
+        clearAllTimers();
+        state.currentScreen = name;
+        state.currentGame = null;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.nav === name));
+        renderScreen();
+    }
+
+    function renderScreen() {
+        const c = getEl('content');
+        c.innerHTML = '';
+        switch (state.currentScreen) {
+            case 'menu': renderMenu(c); break;
+            case 'top': renderTop(c); break;
+            case 'bonus': renderBonus(c); break;
+            case 'profile': renderProfile(c); break;
+            case 'admin': renderAdmin(c); break;
+            default: renderMenu(c);
+        }
+    }
+
+    // ============ СЕКРЕТНОЕ НАЖАТИЕ ============
+    let clickCount = 0;
+    let clickTimer = null;
+    
+    getEl('secretTrigger').addEventListener('click', () => {
+        clickCount++;
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
+        
+        if (clickCount >= 5) {
+            clickCount = 0;
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal">
+                    <h3>Вход для разработчика</h3>
+                    <input class="input" id="adminPass" type="password" placeholder="Введите пароль">
+                    <div id="adminError" style="color:var(--danger);font-size:12px;text-align:center;margin-top:8px;min-height:18px;"></div>
+                    <div class="flex-row mt-16">
+                        <button class="btn" id="adminCancel">Отмена</button>
+                        <button class="btn btn-filled" id="adminConfirm">Войти</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+            const input = overlay.querySelector('#adminPass');
+            input.focus();
+            
+            overlay.querySelector('#adminConfirm').addEventListener('click', () => {
+                if (checkPassword(input.value)) {
+                    overlay.remove();
+                    state.currentScreen = 'admin';
+                    state.adminScreen = 'list';
+                    renderScreen();
+                } else {
+                    overlay.querySelector('#adminError').textContent = 'Неверный пароль!';
+                }
+            });
+            overlay.querySelector('#adminCancel').addEventListener('click', () => overlay.remove());
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') overlay.querySelector('#adminConfirm').click(); });
+        }
+    });
+
+    // ============ АДМИН ПАНЕЛЬ ============
+    async function renderAdmin(c) {
+        const h = document.createElement('div');
+        h.className = 'game-header';
+        h.innerHTML = `<button class="btn" id="adminBackBtn">← Выйти</button><span class="game-title">Админ</span><span style="width:70px"></span>`;
+        c.appendChild(h);
+        h.querySelector('#adminBackBtn').addEventListener('click', () => setScreen('menu'));
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin:0 16px;';
+        c.appendChild(wrap);
+
+        if (state.adminScreen === 'list') {
+            wrap.innerHTML = `
+                <div class="flex-row mt-16" style="margin-bottom:16px;">
+                    <button class="btn" id="adminRefresh">🔄 Обновить</button>
+                    <button class="btn" id="adminRules">📜 Правила</button>
+                </div>
+                <input class="input search-input" id="adminSearch" type="text" placeholder="Поиск по нику или ID...">
+                <div id="adminList"><div class="center small-text mt-16">Загрузка...</div></div>
+            `;
+            
+            const listEl = wrap.querySelector('#adminList');
+            const searchInput = wrap.querySelector('#adminSearch');
+            
+            async function loadPlayers() {
+                listEl.innerHTML = '<div class="center small-text mt-16">Загрузка...</div>';
+                try {
+                    const res = await fetch(CLOUD_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+                    const data = await res.json();
+                    let arr = data.record;
+                    if (typeof arr === 'string') arr = JSON.parse(arr);
+                    if (!Array.isArray(arr)) arr = [];
+                    if (state.nick && !arr.find(p => p.id === state.tgId)) {
+                        arr.push({ id: state.tgId, name: state.nick, balance: state.balance });
+                    }
+                    state.adminPlayers = arr;
+                    renderPlayerList();
+                } catch (e) {
+                    listEl.innerHTML = '<div class="center small-text" style="color:var(--danger);">Ошибка загрузки</div>';
+                }
+            }
+            
+            function renderPlayerList() {
+                const query = searchInput.value.toLowerCase();
+                const filtered = state.adminPlayers.filter(p => 
+                    (p.name || '').toLowerCase().includes(query) || (p.id || '').toLowerCase().includes(query)
+                );
+                if (filtered.length === 0) {
+                    listEl.innerHTML = '<div class="center small-text">Никого не найдено</div>';
+                    return;
+                }
+                listEl.innerHTML = '';
+                filtered.forEach(p => {
+                    const row = document.createElement('div');
+                    row.className = 'admin-player-row';
+                    row.innerHTML = `
+                        <div class="admin-label"><span>${p.name || 'Без имени'}</span><span class="admin-balance"><span class="coin-icon" style="width:14px;height:14px;"></span> ${formatNum(p.balance || 0)}</span></div>
+                        <div class="admin-sub">ID: ${p.id || 'Нет ID'}</div>
+                    `;
+                    row.addEventListener('click', () => {
+                        state.adminSelectedPlayer = p;
+                        state.adminScreen = 'actions';
+                        renderAdmin(c);
+                    });
+                    listEl.appendChild(row);
+                });
+            }
+            
+            wrap.querySelector('#adminRefresh').addEventListener('click', loadPlayers);
+            searchInput.addEventListener('input', renderPlayerList);
+            wrap.querySelector('#adminRules').addEventListener('click', () => { state.adminScreen = 'rules'; renderAdmin(c); });
+            
+            loadPlayers();
+            
+        } else if (state.adminScreen === 'actions') {
+            const p = state.adminSelectedPlayer;
+            wrap.innerHTML = `
+                <button class="btn" id="adminBackToList" style="margin-bottom:16px; width:100%;">← Назад к списку</button>
+                <div class="card" style="margin:0 0 16px 0; text-align:center;">
+                    <div style="font-size:20px;font-weight:800;color:var(--white);">${p.name}</div>
+                    <div class="small-text mt-8" style="font-family:'Roboto Mono'">ID: ${p.id}</div>
+                    <div class="mt-8" style="color:var(--gold);font-weight:800;font-size:18px; display:flex; align-items:center; justify-content:center; gap:6px;">
+                        Баланс: ${formatNum(p.balance || 0)} <span class="coin-icon" style="width:16px;height:16px;"></span>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin:0 0 16px 0;">
+                    <div style="font-weight:700;margin-bottom:12px;color:var(--white);">Дать/Забрать SPH (минус = забрать)</div>
+                    <input class="input" id="adminGiveAmount" type="number" placeholder="Сумма">
+                    <button class="btn btn-filled mt-16" id="adminGiveBtn" style="width:100%;">Применить</button>
+                </div>
+
+                <div class="card" style="margin:0 0 16px 0;">
+                    <div style="font-weight:700;margin-bottom:12px;color:var(--white);">Забанить</div>
+                    <input class="input" id="adminBanTime" type="number" placeholder="Минуты" style="margin-bottom:12px;">
+                    <input class="input" id="adminBanReason" type="text" placeholder="Причина" style="margin-bottom:16px;">
+                    <button class="btn btn-danger" id="adminBanBtn" style="width:100%; margin-bottom:12px;">Забанить</button>
+                    <button class="btn" id="adminUnbanBtn" style="width:100%;">Разбанить</button>
+                </div>
+            `;
+            
+            wrap.querySelector('#adminBackToList').addEventListener('click', () => { state.adminScreen = 'list'; renderAdmin(c); });
+            
+            wrap.querySelector('#adminGiveBtn').addEventListener('click', async () => {
+                const amount = parseInt(wrap.querySelector('#adminGiveAmount').value, 10);
+                if (!amount || amount === 0) { showToast('Введите сумму!'); return; }
+                p.balance = (p.balance || 0) + amount;
+                if (p.balance < 0) p.balance = 0;
+                if (p.id === state.tgId) {
+                    state.balance = p.balance;
+                    localStorage.setItem(LS.balance, String(state.balance));
+                    updateHeader();
+                }
+                showToast(`Баланс изменен на ${amount > 0 ? '+' : ''}${formatNum(amount)} SPH`);
+                await saveAdminChanges();
+            });
+            
+            wrap.querySelector('#adminBanBtn').addEventListener('click', async () => {
+                const mins = parseInt(wrap.querySelector('#adminBanTime').value, 10);
+                const reason = wrap.querySelector('#adminBanReason').value.trim();
+                if (!mins || mins <= 0) { showToast('Введите время!'); return; }
+                p.bannedUntil = Date.now() + (mins * 60000);
+                p.banReason = reason || 'Без причины';
+                showToast(`Игрок забанен!`);
+                await saveAdminChanges();
+            });
+
+            wrap.querySelector('#adminUnbanBtn').addEventListener('click', async () => {
+                p.bannedUntil = 0;
+                p.banReason = '';
+                showToast(`Игрок разбанен!`);
+                await saveAdminChanges();
+            });
+            
+        } else if (state.adminScreen === 'rules') {
+            wrap.innerHTML = `
+                <button class="btn" id="adminBackToList" style="margin-bottom:16px; width:100%;">← Назад к списку</button>
+                <div class="card" style="margin:0;">
+                    <div style="font-weight:800;font-size:18px;color:var(--gold);margin-bottom:16px;">📜 Правила</div>
+                    <div class="small-text" style="line-height:1.8;color:var(--text);">
+                        1. Запрещено использовать баги.<br>
+                        2. Запрещено оскорблять других.<br>
+                        3. Администрация вправе выдать бан.<br>
+                        4. Играйте честно!
+                    </div>
+                </div>
+            `;
+            wrap.querySelector('#adminBackToList').addEventListener('click', () => { state.adminScreen = 'list'; renderAdmin(c); });
+        }
+    }
+
+    async function saveAdminChanges() {
+        try {
+            const res = await fetch(CLOUD_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+            const data = await res.json();
+            let arr = data.record;
+            if (typeof arr === 'string') arr = JSON.parse(arr);
+            if (!Array.isArray(arr)) arr = [];
+            
+            const p = state.adminSelectedPlayer;
+            const idx = arr.findIndex(x => x.id === p.id);
+            if (idx !== -1) {
+                arr[idx].balance = p.balance;
+                arr[idx].bannedUntil = p.bannedUntil;
+                arr[idx].banReason = p.banReason;
+            } else {
+                arr.push(p);
+            }
+            
+            arr.sort((a, b) => b.balance - a.balance);
+            await fetch(CLOUD_URL, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+                body: JSON.stringify(arr.slice(0, 100))
+            });
+        } catch (e) { console.warn(e); }
+    }
+
+    // ============ ИГРЫ ============
+    function renderMenu(c) {
+        const games = [
+            { id: 'crash', name: 'CRASH', emoji: '📈' },
+            { id: 'mines', name: 'MINES', emoji: '💣' },
+            { id: 'dice', name: 'DICE', emoji: '🎲' },
+            { id: 'wheel', name: 'WHEEL', emoji: '🎡' },
+            { id: 'thimbles', name: 'SHELLS', emoji: '🥃' },
+            { id: 'slots', name: 'SLOTS', emoji: '🎰' },
+            { id: 'blackjack', name: 'BLACKJACK', emoji: '🃏' },
+            { id: 'coin', name: 'COIN', emoji: '🪙' },
+            { id: 'plinko', name: 'PLINKO', emoji: '⚪' },
+            { id: 'tower', name: 'TOWER', emoji: '🏗️' },
+            { id: 'cube', name: 'CUBE', emoji: '🎲' },
+            { id: 'roulette', name: 'ROULETTE', emoji: '🎡' },
+            { id: 'duel', name: 'DUEL', emoji: '🥊' },
+            { id: 'upgrader', name: 'UPGRADER', emoji: '⬆️' }
+        ];
+        const grid = document.createElement('div');
+        grid.className = 'games-grid';
+        games.forEach(g => {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.innerHTML = `<span class="game-emoji">${g.emoji}</span><span class="game-name">${g.name}</span>`;
+            card.addEventListener('click', () => openGame(g.id));
+            grid.appendChild(card);
+        });
+        c.appendChild(grid);
     }
 
     function openGame(id) {
-        currentGame = games.find(g => g.id === id);
-        document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-game').classList.add('active');
-        
-        document.getElementById('currentGameTitle').innerText = currentGame.title;
-        document.getElementById('modalTitle').innerText = currentGame.title;
-        document.getElementById('modalText').innerText = currentGame.rule;
-        
-        document.getElementById('gameViewport').innerHTML = `<div style="font-size: 48px; margin-bottom: 10px;">${currentGame.icon}</div><div style="font-weight: 600; color: var(--gold-dark);">${currentGame.title}</div><p style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Игровой модуль активен</p>`;
-        document.getElementById('gameControls').innerHTML = `<button class="btn-primary" onclick="playGameSession()">Сделать ставку и играть</button>`;
+        clearAllTimers();
+        state.currentScreen = 'game';
+        state.currentGame = id;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        renderGame();
     }
 
-    function playGameSession() {
-        if (balance < 50) {
-            alert('Недостаточно сапфиров на балансе!');
-            return;
+    function renderGame() {
+        const c = getEl('content');
+        c.innerHTML = '';
+        const game = state.currentGame;
+        const games = {
+            crash: renderCrash, mines: renderMines, dice: renderDice, wheel: renderWheel,
+            thimbles: renderThimbles, slots: renderSlots, blackjack: renderBlackjack,
+            coin: renderCoin, plinko: renderPlinko, tower: renderTower, cube: renderCube,
+            roulette: renderRoulette, duel: renderDuel, upgrader: renderUpgrader
+        };
+        if (games[game]) games[game](c);
+    }
+
+    function buildGameHeader(c, title, instructions) {
+        const h = document.createElement('div');
+        h.className = 'game-header';
+        h.innerHTML = `<button class="btn" id="backBtn">← Назад</button><span class="game-title">${title}</span><span style="width:80px"></span>`;
+        c.appendChild(h);
+        h.querySelector('#backBtn').addEventListener('click', () => setScreen('menu'));
+
+        const instr = document.createElement('div');
+        instr.className = 'instruction-block';
+        instr.innerHTML = `<div class="instr-title">📋 ПРАВИЛА</div><div class="instr-text">${instructions}</div>`;
+        c.appendChild(instr);
+    }
+
+    function buildBetInput(c, defaultVal) {
+        const row = document.createElement('div');
+        row.className = 'bet-row';
+        row.innerHTML = `<input class="input" id="betInput" type="number" min="1" max="2000000" placeholder="Ставка" value="${defaultVal || 100}">`;
+        c.appendChild(row);
+
+        const quick = document.createElement('div');
+        quick.className = 'quick-bets';
+        [1000, 10000, 100000, 'MAX'].forEach(v => {
+            const b = document.createElement('button');
+            b.textContent = v;
+            b.addEventListener('click', () => { 
+                const inp = getEl('betInput');
+                if (v === 'MAX') {
+                    if (state.balance > 2000000) {
+                        inp.value = 2000000;
+                        showToast('Максимальная ставка 2 000 000!');
+                    } else {
+                        inp.value = Math.max(1, state.balance);
+                    }
+                } else {
+                    inp.value = v; 
+                }
+            });
+            quick.appendChild(b);
+        });
+        c.appendChild(quick);
+        return row;
+    }
+
+    function validateBet() {
+        const inp = getEl('betInput');
+        if (!inp) return null;
+        const val = inp.value.trim();
+        if (!val || isNaN(val)) { showToast('Введите сумму!'); return null; }
+        const num = parseInt(val, 10);
+        if (num <= 0) { showToast('Ставка > 0!'); return null; }
+        if (num > 2000000) { showToast('Максимум 2 000 000!'); return null; }
+        if (num > state.balance) { showToast('Недостаточно средств!'); return null; }
+        return num;
+    }
+
+    function showToast(msg) {
+        let t = document.getElementById('toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'toast';
+            t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--card);color:var(--text);padding:14px 24px;border-radius:8px;font-size:14px;font-weight:600;z-index:9999;border:1px solid var(--gold);transition:opacity 0.3s;max-width:90%;text-align:center;pointer-events:none;';
+            document.body.appendChild(t);
         }
-        balance -= 50;
-        updateBalance();
-        
-        const win = Math.random() > 0.45;
-        const viewport = document.getElementById('gameViewport');
-        
-        if (win) {
-            balance += 100;
-            viewport.innerHTML = `<div style="font-size: 40px;">🎉</div><div style="font-weight: 700; color: #2e7d32; margin-top: 10px;">Победа! +100 💎</div>`;
-        } else {
-            viewport.innerHTML = `<div style="font-size: 40px;">❌</div><div style="font-weight: 700; color: #c62828; margin-top: 10px;">Поражение! -50 💎</div>`;
+        t.textContent = msg;
+        t.style.opacity = '1';
+        clearTimeout(t._timeout);
+        t._timeout = setTimeout(() => { t.style.opacity = '0'; }, 2200);
+    }
+
+    function showResult(container, text, type) {
+        const el = document.createElement('div');
+        el.className = 'result-badge ' + (type === 'win' ? 'win-text' : type === 'lose' ? 'lose-text' : 'neutral-text');
+        el.textContent = text;
+        container.appendChild(el);
+        return el;
+    }
+
+    // ============ CRASH ============
+    function renderCrash(c) {
+        buildGameHeader(c, 'CRASH', 'Ракета летит вверх. Успейте забрать до взрыва!');
+        buildBetInput(c, 100);
+        const wrap = document.createElement('div'); wrap.style.cssText = 'margin:0 16px;';
+        wrap.innerHTML = `<canvas id="crashCanvas" width="600" height="440"></canvas><div class="crash-multiplier" id="crashMult">1.00x</div><div class="flex-row mt-16"><button class="btn" id="crashStart">Старт</button><button class="btn btn-filled" id="crashCashout" disabled>Забрать</button></div>`;
+        c.appendChild(wrap);
+
+        const canvas = getEl('crashCanvas'), ctx = canvas.getContext('2d'), multEl = getEl('crashMult'), startBtn = getEl('crashStart'), cashoutBtn = getEl('crashCashout');
+        let running = false, crashed = false, cashedOut = false, currentMult = 1.0, crashPoint = 1.0, animId = null, startTs = 0, betAmount = 0;
+
+        function drawCrashScene(t, mult, isCrashed) {
+            const W = canvas.width, H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = 'rgba(10, 15, 28, 0.9)'; ctx.fillRect(0, 0, W, H);
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.1)'; ctx.lineWidth = 1;
+            for (let i = 1; i < 5; i++) { ctx.beginPath(); ctx.moveTo(0, H * i / 5); ctx.lineTo(W, H * i / 5); ctx.stroke(); }
+            const points = [], steps = 60;
+            for (let i = 0; i <= steps; i++) {
+                const p = (i / steps) * Math.min(t, 1);
+                const x = 60 + p * (W - 120);
+                const y = H - 50 - Math.pow(p, 1.8) * (H - 100) * Math.min(mult / 3, 1) * 1.1;
+                points.push({ x, y });
+            }
+            if (points.length > 1) {
+                ctx.beginPath(); ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+                ctx.strokeStyle = isCrashed ? 'var(--danger)' : 'var(--gold)'; ctx.lineWidth = 4;
+                ctx.stroke();
+                const last = points[points.length - 1];
+                ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(isCrashed ? '💥' : '🚀', last.x, last.y - 20);
+            }
         }
-        updateBalance();
-    }
 
-    function updateBalance() {
-        document.getElementById('walletBalance').innerText = balance.toLocaleString() + ' 💎';
-    }
-
-    function toggleModal(show) {
-        const modal = document.getElementById('instructionModal');
-        if (show) {
-            modal.classList.add('open');
-        } else {
-            modal.classList.remove('open');
+        function crashLoop(ts) {
+            if (!running) return;
+            if (!startTs) startTs = ts;
+            const elapsed = (ts - startTs) / 1000;
+            currentMult = 1.0 + elapsed * 0.45;
+            if (currentMult > 30) currentMult = 30;
+            if (currentMult >= crashPoint) { currentMult = crashPoint; doCrash(); return; }
+            multEl.textContent = currentMult.toFixed(2) + 'x';
+            drawCrashScene(Math.min(elapsed / 3, 1), currentMult, false);
+            animId = requestAnimationFrame(crashLoop);
         }
+
+        function doCrash() {
+            running = false; crashed = true;
+            if (animId) cancelAnimationFrame(animId);
+            multEl.textContent = 'CRASH! ' + crashPoint.toFixed(2) + 'x'; multEl.classList.add('crashed');
+            drawCrashScene(1, crashPoint, true); cashoutBtn.disabled = true;
+            if (!cashedOut) showResult(c, '💥 Взрыв! Потеряно ' + formatNum(betAmount) + ' SPH', 'lose');
+            startBtn.disabled = false; startBtn.textContent = 'Старт';
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (running) return;
+            const bet = validateBet(); if (!bet) return;
+            betAmount = bet; state.balance -= bet; saveBalance();
+            running = true; crashed = false; cashedOut = false; currentMult = 1.0; startTs = 0;
+            multEl.classList.remove('crashed'); multEl.textContent = '1.00x';
+            let r = secureRandom(); let cp = r < 0.15 ? 1.00 : (0.85 / (1 - r));
+            if (cp > 10) cp = 10; if (cp < 1.01) cp = 1.01; crashPoint = cp;
+            startBtn.disabled = true; cashoutBtn.disabled = false;
+            const old = c.querySelector('.result-badge'); if (old) old.remove();
+            animId = requestAnimationFrame(crashLoop);
+        });
+
+        cashoutBtn.addEventListener('click', () => {
+            if (!running || cashedOut || crashed) return;
+            cashedOut = true; running = false;
+            if (animId) cancelAnimationFrame(animId);
+            
+            const winAmt = Math.floor(betAmount * currentMult);
+            
+            state.balance += winAmt; saveBalance();
+            multEl.textContent = '✅ ' + currentMult.toFixed(2) + 'x';
+            showResult(c, '💰 Выплата ' + formatNum(winAmt) + ' SPH', 'win');
+            cashoutBtn.disabled = true; startBtn.disabled = false;
+        });
+        registerCleanup(() => { running = false; if (animId) cancelAnimationFrame(animId); });
     }
 
-    function renderLeaders() {
-        const list = document.getElementById('leadersList');
-        const dummyLeaders = [
-            { rank: 1, name: 'AlexGold', score: '14,250 💎' },
-            { rank: 2, name: 'SapphireKing', score: '11,800 💎' },
-            { rank: 3, name: 'Bogname', score: '9,400 💎' },
-            { rank: 4, name: 'LuckyPlayer', score: '7,100 💎' }
-        ];
-        list.innerHTML = dummyLeaders.map(l => `
-            <div class="card-box" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 12px 16px;">
-                <div><span style="font-weight: bold; color: var(--gold-dark); margin-right: 10px;">#${l.rank}</span> ${l.name}</div>
-                <div style="font-weight: 600; color: var(--text-main);">${l.score}</div>
+    // ============ MINES ============
+    function renderMines(c) {
+        buildGameHeader(c, 'MINES', 'Открывайте безопасные ячейки.');
+        const mineRow = document.createElement('div'); mineRow.style.cssText = 'display:flex;align-items:center;gap:12px;margin:16px;';
+        mineRow.innerHTML = `<span style="font-size:15px;font-weight:600;color:var(--text);">Мин:</span><input class="input" id="mineCount" type="number" min="1" max="24" value="3" style="flex:1;">`;
+        c.appendChild(mineRow);
+        buildBetInput(c, 100);
+        const grid = document.createElement('div'); grid.className = 'mines-grid'; grid.id = 'minesGrid'; c.appendChild(grid);
+        const controls = document.createElement('div'); controls.className = 'flex-row mt-16'; controls.style.margin = '16px';
+        controls.innerHTML = `<button class="btn" id="minesStart">Играть</button><button class="btn btn-filled" id="minesCashout" disabled>Забрать</button>`;
+        c.appendChild(controls);
+        let active = false, minesArr = [], revealed = 0, totalSafe = 0, currentMult = 1, betAmount = 0, gameOver = false;
+
+        function calcMultiplier(mines, revealedCount) {
+            let mult = 1; for (let i = 0; i < revealedCount; i++) mult *= (25 - i) / (25 - mines - i);
+            return Math.max(1, Math.floor((mult * 0.85) * 100) / 100);
+        }
+
+        function buildGrid() {
+            grid.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div'); cell.className = 'mine-cell'; cell.dataset.index = i;
+                cell.addEventListener('click', () => onCellClick(i, cell)); grid.appendChild(cell);
+            }
+        }
+
+        function onCellClick(idx, cell) {
+            if (!active || gameOver || cell.classList.contains('safe') || cell.classList.contains('bomb')) return;
+            if (minesArr[idx]) {
+                gameOver = true; active = false; cell.textContent = '💣'; cell.classList.add('bomb');
+                document.querySelectorAll('.mine-cell').forEach((el, i) => {
+                    el.classList.add('disabled'); if (minesArr[i] && el !== cell) { el.textContent = '💣'; el.classList.add('bomb'); }
+                });
+                showResult(c, '💥 Мина! Потеряно ' + formatNum(betAmount) + ' SPH', 'lose');
+                getEl('minesCashout').disabled = true; getEl('minesStart').disabled = false; return;
+            }
+            cell.classList.add('safe'); cell.textContent = '💎'; revealed++;
+            currentMult = calcMultiplier(minesArr.filter(Boolean).length, revealed);
+            const cashoutBtn = getEl('minesCashout');
+            cashoutBtn.textContent = 'Забрать ' + formatNum(Math.floor(betAmount * currentMult)) + ' SPH';
+            cashoutBtn.disabled = false;
+            if (revealed >= totalSafe) {
+                active = false; gameOver = true; cashoutBtn.disabled = true;
+                const winAmt = Math.floor(betAmount * currentMult);
+                state.balance += winAmt; saveBalance();
+                showResult(c, '🏆 Успех! +' + formatNum(winAmt) + ' SPH', 'win');
+                getEl('minesStart').disabled = false;
+            }
+        }
+
+        getEl('minesStart').addEventListener('click', () => {
+            if (active) return;
+            const bet = validateBet(); if (!bet) return;
+            const mc = parseInt(getEl('mineCount').value, 10);
+            if (!mc || mc < 1 || mc > 24) { showToast('Мин 1-24!'); return; }
+            betAmount = bet; state.balance -= bet; saveBalance();
+            active = true; gameOver = false; revealed = 0; currentMult = 1; totalSafe = 25 - mc;
+            minesArr = new Array(25).fill(false);
+            let placed = 0; while (placed < mc) { const r = Math.floor(secureRandom() * 25); if (!minesArr[r]) { minesArr[r] = true; placed++; } }
+            buildGrid();
+            getEl('minesCashout').disabled = true; getEl('minesCashout').textContent = 'Забрать';
+            getEl('minesStart').disabled = true; const old = c.querySelector('.result-badge'); if (old) old.remove();
+        });
+
+        getEl('minesCashout').addEventListener('click', () => {
+            if (!active || gameOver) return;
+            active = false; gameOver = true;
+            const winAmt = Math.floor(betAmount * currentMult);
+            state.balance += winAmt; saveBalance();
+            showResult(c, '💰 Забрано ' + formatNum(winAmt) + ' SPH', 'win');
+            document.querySelectorAll('.mine-cell').forEach((el, i) => {
+                el.classList.add('disabled'); if (minesArr[i]) { el.textContent = '💣'; el.classList.add('bomb'); }
+            });
+            getEl('minesCashout').disabled = true; getEl('minesStart').disabled = false;
+        });
+        buildGrid();
+    }
+
+    // ============ DICE ============
+    function renderDice(c) {
+        buildGameHeader(c, 'DICE', 'Угадайте, выпадет больше или меньше.');
+        buildBetInput(c, 100);
+        const slWrap = document.createElement('div'); slWrap.className = 'dice-wrapper';
+        slWrap.innerHTML = `
+            <div style="display:flex;justify-content:space-between;font-size:14px;color:var(--text-dim);font-weight:600;margin-bottom:10px;">
+                <span>Шанс: <span id="diceChanceVal" style="color:var(--gold)">50%</span></span>
+                <span>Множитель: <span id="diceMultVal" style="color:var(--white)">1.90x</span></span>
             </div>
-        `).join('');
+            <div class="dice-bar-container" id="diceBarContainer"><div class="dice-bar-lose" id="diceBarLose" style="width: 50%;">0 - 50</div><div class="dice-bar-win" id="diceBarWin" style="width: 50%;">50 - 100</div></div>
+            <input type="range" class="dice-slider" id="diceSlider" min="1" max="95" value="50">
+            <div class="dice-display" id="diceDisplay">50.00</div>
+            <div class="dice-buttons"><button class="btn" id="diceUnderBtn">Меньше</button><button class="btn" id="diceOverBtn">Больше</button></div>`;
+        c.appendChild(slWrap);
+        let chance = 50, rolling = false, spinInterval = null, isOverMode = true;
+        const slider = getEl('diceSlider'), chanceVal = getEl('diceChanceVal'), multVal = getEl('diceMultVal'), display = getEl('diceDisplay'), barLose = getEl('diceBarLose'), barWin = getEl('diceBarWin');
+
+        function updateChanceDisplay() {
+            chance = parseInt(slider.value, 10); chanceVal.textContent = chance + '%'; 
+            let mult = 95 / chance; 
+            multVal.textContent = mult.toFixed(2) + 'x';
+            if (isOverMode) {
+                barLose.style.width = (100 - chance) + '%'; barWin.style.width = chance + '%';
+                barLose.textContent = 'Проигрыш'; barWin.textContent = 'Выигрыш';
+            } else {
+                barWin.style.width = chance + '%'; barLose.style.width = (100 - chance) + '%';
+                barWin.textContent = 'Выигрыш'; barLose.textContent = 'Проигрыш';
+            }
+        }
+        slider.addEventListener('input', updateChanceDisplay); updateChanceDisplay();
+        function setMode(over) { if (rolling) return; isOverMode = over; updateChanceDisplay(); }
+        getEl('diceOverBtn').addEventListener('click', () => setMode(true));
+        getEl('diceUnderBtn').addEventListener('click', () => setMode(false));
+
+        function doRoll() {
+            if (rolling) return;
+            const bet = validateBet(); if (!bet) return;
+            rolling = true; state.balance -= bet; saveBalance();
+            const winChance = chance, multiplier = 95 / winChance; let spinCount = 0;
+            display.classList.remove('win', 'lose'); const old = c.querySelector('.result-badge'); if (old) old.remove();
+            spinInterval = setInterval(() => {
+                display.textContent = (secureRandom() * 100).toFixed(2); spinCount++;
+                if (spinCount > 15) {
+                    clearInterval(spinInterval); spinInterval = null;
+                    const finalNum = secureRandom() * 100; display.textContent = finalNum.toFixed(2);
+                    let win = isOverMode ? (finalNum > (100 - winChance)) : (finalNum < winChance);
+                    if (win) {
+                        const winAmt = Math.floor(bet * multiplier);
+                        state.balance += winAmt; saveBalance();
+                        display.classList.add('win'); showResult(c, '🎉 Победа! +' + formatNum(winAmt) + ' SPH', 'win');
+                    } else {
+                        display.classList.add('lose'); showResult(c, '😞 Проигрыш. Потеряно ' + formatNum(bet) + ' SPH', 'lose');
+                    }
+                    rolling = false;
+                }
+            }, 50);
+            registerCleanup(() => { if (spinInterval) { clearInterval(spinInterval); spinInterval = null; } });
+        }
+        getEl('diceOverBtn').addEventListener('click', () => { setMode(true); doRoll(); });
+        getEl('diceUnderBtn').addEventListener('click', () => { setMode(false); doRoll(); });
+        display.textContent = '50.00';
     }
 
-    // Инициализация лобби при загрузке
-    initLobby();
+    // ============ WHEEL ============
+    function renderWheel(c) {
+        buildGameHeader(c, 'WHEEL', 'Крутите колесо удачи.');
+        buildBetInput(c, 100);
+        const wrap = document.createElement('div'); wrap.style.cssText = 'margin:0 auto; position:relative;';
+        wrap.innerHTML = `<div class="wheel-wrapper"><div class="wheel-pointer"></div><div class="wheel" id="wheelEl"><div class="wheel-center">💎</div></div></div><div class="center mt-16"><button class="btn btn-filled" id="wheelSpin" style="width:80%;">Крутить</button></div><div class="result-badge" id="wheelResult"></div>`;
+        c.appendChild(wrap);
+        
+        const sectors = [ 
+            { label: '0x', weight: 55, color: 'var(--card)' }, 
+            { label: 'x1.5', weight: 20, color: '#1e3a8a' }, 
+            { label: 'x2', weight: 15, color: '#2563eb' }, 
+            { label: 'x3', weight: 7, color: '#3b82f6' }, 
+            { label: 'x5', weight: 3, color: 'var(--gold)' } 
+        ];
+        
+        const wheelEl = getEl('wheelEl'), resultEl = getEl('wheelResult'); let spinning = false, currentRotation = 0;
+        let currentAngle = 0;
+        
+        let gradientStr = '';
+        sectors.forEach((sec, idx) => {
+            const start = currentAngle;
+            const end = currentAngle + (sec.weight / 100) * 360;
+            gradientStr += `${sec.color} ${start}deg ${end}deg${idx < sectors.length - 1 ? ', ' : ''}`;
+            
+            const midAngle = currentAngle + ((sec.weight / 100) * 360) / 2;
+            const label = document.createElement('div'); label.className = 'wheel-label';
+            const rad = (midAngle - 90) * Math.PI / 180, r = 95;
+            label.style.transform = `translate(calc(-50% + ${Math.cos(rad) * r}px), calc(-50% + ${Math.sin(rad) * r}px))`;
+            label.textContent = sec.label; wheelEl.appendChild(label);
+            
+            currentAngle = end;
+        });
+        wheelEl.style.background = `conic-gradient(${gradientStr})`;
+
+        getEl('wheelSpin').addEventListener('click', () => {
+            if (spinning) return;
+            const bet = validateBet(); if (!bet) return;
+            spinning = true; state.balance -= bet; saveBalance();
+            resultEl.textContent = ''; resultEl.className = 'result-badge';
+            
+            const rand = secureRandom() * 100; 
+            let selected = sectors[0], acc = 0, selectedStartAngle = 0;
+            for (const s of sectors) { if (rand >= acc && rand < acc + s.weight) { selected = s; selectedStartAngle = (acc / 100) * 360; break; } acc += s.weight; }
+            
+            const sectorSize = (selected.weight / 100) * 360, midAngle = selectedStartAngle + sectorSize / 2;
+            const targetAngle = 360 * 5 + (360 - midAngle), baseRot = Math.ceil(currentRotation / 360) * 360;
+            currentRotation = baseRot + targetAngle; wheelEl.style.transform = `rotate(${currentRotation}deg)`;
+            
+            const onEnd = () => {
+                wheelEl.removeEventListener('transitionend', onEnd); spinning = false;
+                const mult = parseFloat(selected.label.replace('x', ''));
+                if (mult > 0) {
+                    const winAmt = Math.floor(bet * mult);
+                    state.balance += winAmt; saveBalance();
+                    resultEl.textContent = `🎉 Выпало ${selected.label}! +${formatNum(winAmt)} SPH`; resultEl.className = 'result-badge win-text';
+                } else {
+                    resultEl.textContent = `💨 Выпало ${selected.label}. Потеряно ${formatNum(bet)} SPH`; resultEl.className = 'result-badge lose-text';
+                }
+            };
+            wheelEl.addEventListener('transitionend', onEnd);
+            registerCleanup(() => { wheelEl.removeEventListener('transitionend', onEnd); });
+        });
+        registerCleanup(() => { spinning = false; });
+    }
+
+    // ============ THIMBLES ============
+    function renderThimbles(c) {
+        buildGameHeader(c, 'SHELLS', 'Найдите шарик.');
+        buildBetInput(c, 100);
+        const row = document.createElement('div'); row.className = 'thimbles-row'; row.id = 'thimblesRow'; c.appendChild(row);
+        const startBtn = document.createElement('button'); startBtn.className = 'btn'; startBtn.style.cssText = 'display:block;width:80%;margin:16px auto;'; startBtn.textContent = 'Начать'; c.appendChild(startBtn);
+        let ballIndex = 0, playing = false, betAmount = 0, phase = 'idle', thimbleEls = [];
+
+        function buildThimbles() {
+            row.innerHTML = ''; thimbleEls = [];
+            for (let i = 0; i < 3; i++) {
+                const t = document.createElement('div'); t.className = 'thimble'; t.dataset.index = i; t.innerHTML = '<div class="ball"></div>';
+                t.addEventListener('click', () => onThimbleClick(i)); row.appendChild(t); thimbleEls.push(t);
+            }
+        }
+
+        function animateShuffle() {
+            let step = 0; const totalSteps = 5;
+            const shuffleInterval = setInterval(() => {
+                thimbleEls.forEach((t) => {
+                    t.classList.add('shuffling'); const randX = (secureRandom() - 0.5) * 60, randY = -20 - secureRandom() * 20;
+                    t.style.transform = `translate(${randX}px, ${randY}px) rotate(${(secureRandom()-0.5)*30}deg)`;
+                    setTimeout(() => { t.classList.remove('shuffling'); t.style.transform = ''; }, 400);
+                });
+                step++;
+                if (step >= totalSteps) {
+                    clearInterval(shuffleInterval);
+                    const idxArr = [0, 1, 2]; for (let i = idxArr.length - 1; i > 0; i--) { const j = Math.floor(secureRandom() * (i + 1)); [idxArr[i], idxArr[j]] = [idxArr[j], idxArr[i]]; }
+                    thimbleEls.forEach((t, i) => { t.dataset.index = idxArr[i]; });
+                    phase = 'guess'; startBtn.disabled = false; startBtn.textContent = 'Выбрать';
+                }
+            }, 500);
+            registerCleanup(() => clearInterval(shuffleInterval));
+        }
+
+        function onThimbleClick(i) {
+            if (phase !== 'guess') return;
+            phase = 'result'; playing = false;
+            thimbleEls.forEach(t => t.classList.add('lifted'));
+            let visualWinnerIdx = -1;
+            thimbleEls.forEach((t, idx) => { if (parseInt(t.dataset.index) === ballIndex) { visualWinnerIdx = idx; t.classList.add('show-ball'); } });
+            const old = c.querySelector('.result-badge'); if (old) old.remove();
+            if (i === visualWinnerIdx) {
+                const winAmt = Math.floor(betAmount * 2.7);
+                state.balance += winAmt; saveBalance();
+                showResult(c, '🎉 Угадали! +' + formatNum(winAmt) + ' SPH', 'win');
+            } else {
+                showResult(c, '😞 Промах. Потеряно ' + formatNum(betAmount) + ' SPH', 'lose');
+            }
+            startBtn.textContent = 'Ещё раз'; startBtn.disabled = false; startBtn.onclick = null;
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (playing) return; if (phase === 'guess') return;
+            const bet = validateBet(); if (!bet) return;
+            betAmount = bet; state.balance -= bet; saveBalance();
+            playing = true; phase = 'show'; startBtn.disabled = true; startBtn.textContent = 'Смотрим...';
+            buildThimbles(); ballIndex = Math.floor(secureRandom() * 3);
+            thimbleEls.forEach(t => t.classList.add('lifted'));
+            setTimeout(() => { thimbleEls[ballIndex].classList.add('show-ball'); }, 100);
+            setTimeout(() => { thimbleEls.forEach(t => { t.classList.remove('lifted'); }); }, 1200);
+            setTimeout(() => { thimbleEls.forEach(t => t.classList.remove('show-ball')); phase = 'shuffling'; animateShuffle(); }, 1800);
+            const old = c.querySelector('.result-badge'); if (old) old.remove();
+        });
+        buildThimbles();
+        registerCleanup(() => { playing = false; phase = 'idle'; });
+    }
+
+    // ============ SLOTS ============
+    function renderSlots(c) {
+        buildGameHeader(c, 'SLOTS', '3 одинаковых = x7, 2 = x1.5.');
+        buildBetInput(c, 100);
+        const machine = document.createElement('div'); machine.className = 'slots-machine';
+        machine.innerHTML = `<div class="slot-reel"><div class="slot-strip" id="reel0"></div></div><div class="slot-reel"><div class="slot-strip" id="reel1"></div></div><div class="slot-reel"><div class="slot-strip" id="reel2"></div></div>`;
+        c.appendChild(machine);
+        const spinBtn = document.createElement('button'); spinBtn.className = 'btn btn-filled'; spinBtn.style.cssText = 'display:block;width:80%;margin:16px auto;'; spinBtn.textContent = 'Спин'; c.appendChild(spinBtn);
+        const symbols = ['7️⃣', '💎', '🍒', '🍋', '🔔']; const reelStrips = [getEl('reel0'), getEl('reel1'), getEl('reel2')];
+        let spinning = false, intervals = [], timeouts = [];
+
+        function populateReel(el) {
+            el.innerHTML = '';
+            for (let i = 0; i < 20; i++) { const s = document.createElement('div'); s.className = 'slot-symbol'; s.textContent = symbols[Math.floor(secureRandom() * symbols.length)]; el.appendChild(s); }
+        }
+        reelStrips.forEach(populateReel); reelStrips.forEach(r => { r.style.top = '-100px'; });
+
+        function startReelSpin(idx, stopAfter) {
+            const el = reelStrips[idx]; let pos = -100;
+            const iv = setInterval(() => {
+                pos -= 100; if (pos <= -1900) pos = -100; el.style.top = pos + 'px';
+                el.querySelectorAll('.slot-symbol').forEach(s => { if (secureRandom() < 0.3) s.textContent = symbols[Math.floor(secureRandom() * symbols.length)]; });
+            }, 50);
+            intervals.push(iv);
+            const to = setTimeout(() => {
+                clearInterval(iv); const finalSymbols = [];
+                el.querySelectorAll('.slot-symbol').forEach(s => finalSymbols.push(s.textContent));
+                el.style.top = '-100px'; const fs = finalSymbols[0] || symbols[0];
+                el.querySelectorAll('.slot-symbol').forEach(s => { s.textContent = fs; }); el.dataset.finalSymbol = fs;
+                if (idx === 2) finishSlots();
+            }, stopAfter);
+            timeouts.push(to);
+        }
+
+        function finishSlots() {
+            spinning = false; spinBtn.disabled = false;
+            const results = reelStrips.map(r => r.dataset.finalSymbol);
+            const bet = parseInt(spinBtn.dataset.bet || '0', 10);
+            const old = c.querySelector('.result-badge'); if (old) old.remove();
+            if (results[0] === results[1] && results[1] === results[2]) {
+                const winAmt = bet * 7; state.balance += winAmt; saveBalance();
+                showResult(c, '🎉 ДЖЕКПОТ! 7x +' + formatNum(winAmt) + ' SPH', 'win');
+            } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
+                const winAmt = Math.floor(bet * 1.5); state.balance += winAmt; saveBalance();
+                showResult(c, '✨ Два совпадения! 1.5x +' + formatNum(winAmt) + ' SPH', 'win');
+            } else {
+                showResult(c, '😞 Нет совпадений. Потеряно ' + formatNum(bet) + ' SPH', 'lose');
+            }
+        }
+
+        spinBtn.addEventListener('click', () => {
+            if (spinning) return;
+            const bet = validateBet(); if (!bet) return;
+            spinning = true; spinBtn.disabled = true; state.balance -= bet; saveBalance(); spinBtn.dataset.bet = bet;
+            intervals.forEach(i => clearInterval(i)); timeouts.forEach(t => clearTimeout(t)); intervals = []; timeouts = [];
+            reelStrips.forEach((r, i) => { r.dataset.finalSymbol = ''; startReelSpin(i, 1000 + i * 300); });
+            registerCleanup(() => { intervals.forEach(i => clearInterval(i)); timeouts.forEach(t => clearTimeout(t)); });
+        });
+        registerCleanup(() => { intervals.forEach(i => clearInterval(i)); timeouts.forEach(t => clearTimeout(t)); });
+    }
+
+    // ============ BLACKJACK ============
+    function renderBlackjack(c) {
+        buildGameHeader(c, 'BLACKJACK', 'Наберите 21 очко.');
+        buildBetInput(c, 100);
+        const wrap = document.createElement('div'); wrap.style.cssText = 'margin:16px;';
+        wrap.innerHTML = `
+            <div style="font-size:15px;font-weight:600;color:var(--text-dim);margin-bottom:6px;">Дилер: <span id="bjDealerScore" style="color:var(--gold); font-family:'Roboto Mono'">?</span></div>
+            <div class="bj-cards" id="bjDealerCards"></div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-dim);margin:16px 0 6px;">Вы: <span id="bjPlayerScore" style="color:var(--white); font-family:'Roboto Mono'">0</span></div>
+            <div class="bj-cards" id="bjPlayerCards"></div>
+            <div class="bj-buttons mt-16">
+                <button class="btn" id="bjDeal">Раздать</button>
+                <button class="btn" id="bjHit" disabled>Взять</button>
+                <button class="btn btn-filled" id="bjStand" disabled>Хватит</button>
+            </div>
+            <div class="result-badge" id="bjResult"></div>`;
+        c.appendChild(wrap);
+        const suits = ['♠', '♥', '♦', '♣'];
+        const ranks = [ { r: '2', v: 2 }, { r: '3', v: 3 }, { r: '4', v: 4 }, { r: '5', v: 5 }, { r: '6', v: 6 }, { r: '7', v: 7 }, { r: '8', v: 8 }, { r: '9', v: 9 }, { r: '10', v: 10 }, { r: 'J', v: 10 }, { r: 'Q', v: 10 }, { r: 'K', v: 10 }, { r: 'A', v: 11 } ];
+        let deck = [], playerHand = [], dealerHand = [], gameActive = false, dealerHidden = true, betAmount = 0, dealerTimeouts = [];
+
+        function buildDeck() {
+            deck = []; for (const s of suits) for (const rk of ranks) deck.push({ suit: s, rank: rk.r, value: rk.v });
+            for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(secureRandom() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+        }
+
+        function calcScore(hand) {
+            let sum = 0, aces = 0;
+            for (const card of hand) { sum += card.value; if (card.rank === 'A') aces++; }
+            while (sum > 21 && aces > 0) { sum -= 10; aces--; }
+            return sum;
+        }
+
+        function renderCard(card, hidden) {
+            if (hidden) return '<div class="bj-card hidden">🂠</div>';
+            const isRed = card.suit === '♥' || card.suit === '♦';
+            return `<div class="bj-card${isRed ? ' red' : ''}"><span>${card.rank}</span><span style="font-size:24px">${card.suit}</span></div>`;
+        }
+
+        function renderHands() {
+            const dc = getEl('bjDealerCards'), pc = getEl('bjPlayerCards');
+            dc.innerHTML = dealerHand.map((card, i) => renderCard(card, dealerHidden && i === 0 && dealerHand.length > 1)).join('');
+            pc.innerHTML = playerHand.map(card => renderCard(card, false)).join('');
+            getEl('bjPlayerScore').textContent = calcScore(playerHand);
+            if (dealerHidden) getEl('bjDealerScore').textContent = '?'; else getEl('bjDealerScore').textContent = calcScore(dealerHand);
+        }
+
+        function endGame(resultText, type, winAmount) {
+            gameActive = false; dealerHidden = false; renderHands();
+            getEl('bjHit').disabled = true; getEl('bjStand').disabled = true; getEl('bjDeal').disabled = false;
+            if (winAmount !== undefined) { if (winAmount > 0) { state.balance += winAmount; saveBalance(); } }
+            const res = getEl('bjResult'); res.textContent = resultText;
+            res.className = 'result-badge ' + (type === 'win' ? 'win-text' : type === 'lose' ? 'lose-text' : 'neutral-text');
+        }
+
+        getEl('bjDeal').addEventListener('click', () => {
+            if (gameActive) return;
+            const bet = validateBet(); if (!bet) return;
+            betAmount = bet; state.balance -= bet; saveBalance();
+            buildDeck(); playerHand = []; dealerHand = []; dealerHidden = true; gameActive = true;
+            dealerTimeouts.forEach(t => clearTimeout(t)); dealerTimeouts = [];
+            playerHand.push(deck.pop()); dealerHand.push(deck.pop()); playerHand.push(deck.pop()); dealerHand.push(deck.pop());
+            renderHands(); getEl('bjHit').disabled = false; getEl('bjStand').disabled = false; getEl('bjDeal').disabled = true;
+            getEl('bjResult').textContent = ''; getEl('bjResult').className = 'result-badge';
+            if (calcScore(playerHand) === 21) {
+                const winAmt = Math.floor(betAmount * 1.5);
+                endGame('🎉 Блэкджек! +' + formatNum(winAmt) + ' SPH', 'win', winAmt);
+            }
+        });
+
+        getEl('bjHit').addEventListener('click', () => {
+            if (!gameActive) return;
+            playerHand.push(deck.pop()); renderHands();
+            if (calcScore(playerHand) > 21) endGame('💥 Перебор. Потеряно ' + formatNum(betAmount) + ' SPH', 'lose');
+        });
+
+        getEl('bjStand').addEventListener('click', () => {
+            if (!gameActive) return;
+            dealerHidden = false; getEl('bjHit').disabled = true; getEl('bjStand').disabled = true; renderHands();
+            function dealerDraw() {
+                if (calcScore(dealerHand) < 17) {
+                    dealerHand.push(deck.pop()); renderHands();
+                    const t = setTimeout(dealerDraw, 500); dealerTimeouts.push(t);
+                } else { checkResult(); }
+            }
+            function checkResult() {
+                const ps = calcScore(playerHand), ds = calcScore(dealerHand);
+                if (ds > 21) {
+                    const winAmt = Math.floor(betAmount * 2);
+                    endGame('🎉 Дилер перебрал! +' + formatNum(winAmt) + ' SPH', 'win', winAmt);
+                }
+                else if (ps > ds) {
+                    const winAmt = Math.floor(betAmount * 2);
+                    endGame('🎉 Победа! +' + formatNum(winAmt) + ' SPH', 'win', winAmt);
+                }
+                else if (ps === ds) endGame('🤝 Ничья.', 'neutral', betAmount);
+                else endGame('😞 Дилер победил.', 'lose');
+            }
+            const t = setTimeout(dealerDraw, 500); dealerTimeouts.push(t);
+        });
+        registerCleanup(() => { dealerTimeouts.forEach(t => clearTimeout(t)); dealerTimeouts = []; gameActive = false; });
+    }
+
+    // ============ COIN ============
+    function renderCoin(c) {
+        buildGameHeader(c, 'COIN', 'Орел или Решка. Икс 1.95x.');
+        buildBetInput(c, 100);
+        const wrap = document.createElement('div');
+        wrap.innerHTML = `
+            <div class="coin-wrapper"><div class="coin" id="coinEl"><div class="coin-face coin-front">🦅</div><div class="coin-face coin-back">🪙</div></div></div>
+            <div class="flex-row" style="margin:0 16px;"><button class="btn" id="coinHeads">Орёл</button><button class="btn" id="coinTails">Решка</button></div>
+            <div class="result-badge" id="coinResult"></div>`;
+        c.appendChild(wrap);
+        const coinEl = getEl('coinEl'), resultEl = getEl('coinResult'); let flipping = false;
+
+        function flip(choice) {
+            if (flipping) return;
+            const bet = validateBet(); if (!bet) return;
+            flipping = true; state.balance -= bet; saveBalance();
+            resultEl.textContent = ''; resultEl.className = 'result-badge';
+            
+            setTimeout(() => { flipping = false; }, 2000);
+
+            const outcome = secureRandom() < 0.5 ? 'heads' : 'tails';
+            coinEl.style.transform = 'rotateX(0deg)'; void coinEl.offsetWidth;
+            const rotationAngle = outcome === 'heads' ? 1800 : 1980;
+            coinEl.style.transform = `rotateX(${rotationAngle}deg)`;
+            
+            const onEnd = () => {
+                coinEl.removeEventListener('transitionend', onEnd); 
+                flipping = false;
+                const won = outcome === choice, outcomeLabel = outcome === 'heads' ? 'Орёл' : 'Решка';
+                if (won) {
+                    const winAmt = Math.floor(bet * 1.95);
+                    state.balance += winAmt; saveBalance();
+                    resultEl.textContent = `🎉 Выпал ${outcomeLabel}! +${formatNum(winAmt)} SPH`; resultEl.className = 'result-badge win-text';
+                } else {
+                    resultEl.textContent = `😞 Выпал ${outcomeLabel}. Потеряно ${formatNum(bet)} SPH`; resultEl.className = 'result-badge lose-text';
+                }
+            };
+            coinEl.addEventListener('transitionend', onEnd);
+            registerCleanup(() => { coinEl.removeEventListener('transitionend', onEnd); flipping = false; });
+        }
+        getEl('coinHeads').addEventListener('click', () => flip('heads'));
+        getEl('coinTails').addEventListener('click', () => flip('tails'));
+        registerCleanup(() => { flipping = false; });
+    }
+
+    // ============ PLINKO ============
+    function renderPlinko(c) {
+        buildGameHeader(c, 'PLINKO', 'Шарик падает вниз.');
+        buildBetInput(c, 100);
+        const canvasWrap = document.createElement('div'); canvasWrap.style.cssText = 'margin:0 16px;';
+        canvasWrap.innerHTML = '<canvas id="plinkoCanvas" width="600" height="680"></canvas>'; c.appendChild(canvasWrap);
+        const btn = document.createElement('button'); btn.className = 'btn btn-filled'; btn.style.cssText = 'display:block;width:80%;margin:16px auto;'; btn.textContent = 'Запустить'; c.appendChild(btn);
+        const canvas = getEl('plinkoCanvas'), ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
+        const rows = 7, pegRadius = 6, bottomSlots = [5, 2, 0.5, 0.2, 0.5, 2, 5], slotColors = ['var(--gold)', '#1e3a8a', '#2563eb', '#0f1832', '#2563eb', '#1e3a8a', 'var(--gold)'];
+        let pegs = [], gameActive = false, betAmount = 0;
+
+        function buildPegs() {
+            pegs = []; const topY = 80, bottomY = H - 120, rowSpacing = (bottomY - topY) / (rows - 1);
+            for (let r = 0; r < rows; r++) {
+                const count = r + 2, y = topY + r * rowSpacing, totalWidth = (count - 1) * 60, startX = W / 2 - totalWidth / 2;
+                for (let i = 0; i < count; i++) pegs.push({ x: startX + i * 60, y });
+            }
+        }
+        buildPegs();
+
+        function drawPlinko(bx, by) {
+            ctx.clearRect(0, 0, W, H); ctx.fillStyle = 'rgba(10, 15, 28, 0.9)'; ctx.fillRect(0, 0, W, H);
+            for (const p of pegs) { ctx.beginPath(); ctx.arc(p.x, p.y, pegRadius, 0, Math.PI * 2); ctx.fillStyle = '#1e3a8a'; ctx.fill(); }
+            const slotW = W / bottomSlots.length;
+            for (let i = 0; i < bottomSlots.length; i++) {
+                const x = i * slotW, y = H - 70, h = 55;
+                ctx.fillStyle = slotColors[i] + '33'; ctx.strokeStyle = slotColors[i]; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.roundRect(x + 4, y, slotW - 8, h, 8); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#fff'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(bottomSlots[i] + 'x', x + slotW / 2, y + h / 2);
+            }
+            if (bx !== null && by !== null) {
+                ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
+            }
+        }
+        drawPlinko(null, null);
+
+        btn.addEventListener('click', () => {
+            if (gameActive) return;
+            const bet = validateBet(); if (!bet) return;
+            betAmount = bet; state.balance -= bet; saveBalance(); gameActive = true;
+            const old = c.querySelector('.result-badge'); if (old) old.remove();
+            let ballX = W / 2 + (secureRandom() - 0.5) * 10, ballY = 30, vy = 4.5, vx = 0;
+            const intervalId = setInterval(() => {
+                if (!gameActive) { clearInterval(intervalId); return; }
+                ballY += vy; ballX += vx; vx *= 0.85;
+                for (const p of pegs) {
+                    const dx = ballX - p.x, dy = ballY - p.y, dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 18) {
+                        const angle = Math.atan2(dy, dx); ballX = p.x + Math.cos(angle) * 19; ballY = p.y + Math.sin(angle) * 19;
+                        vx = (secureRandom() - 0.5) * 14;
+                        vy = Math.abs(vy) * 0.9 + 1;
+                    }
+                }
+                if (ballX < 20) { ballX = 20; vx = Math.abs(vx) * 0.6; }
+                if (ballX > W - 20) { ballX = W - 20; vx = -Math.abs(vx) * 0.6; }
+                if (ballY >= H - 80) {
+                    clearInterval(intervalId); gameActive = false;
+                    const slotW = W / bottomSlots.length; let slotIdx = Math.floor(ballX / slotW);
+                    if (slotIdx < 0) slotIdx = 0; if (slotIdx >= bottomSlots.length) slotIdx = bottomSlots.length - 1;
+                    const mult = bottomSlots[slotIdx], winAmt = Math.floor(betAmount * mult);
+                    if (mult >= 1) { state.balance += winAmt; saveBalance(); showResult(c, `🎉 Луза ${mult}x! +${formatNum(winAmt)} SPH`, mult >= 2 ? 'win' : 'neutral'); }
+                    else { state.balance += winAmt; saveBalance(); showResult(c, `😞 Луза ${mult}x. Возврат ${formatNum(winAmt)} SPH`, 'lose'); }
+                    drawPlinko(null, null); return;
+                }
+                drawPlinko(ballX, ballY);
+            }, 16);
+            registerCleanup(() => { clearInterval(intervalId); gameActive = false; });
+        });
+        registerCleanup(() => { gameActive = false; });
+    }
+
+    // ============ TOWER ============
+    function renderTower(c) {
+        buildGameHeader(c, 'TOWER', 'Поднимайтесь выше. Избегайте мин.');
+        buildBetInput(c, 100);
+        const towerWrap = document.createElement('div'); towerWrap.id = 'towerWrap'; towerWrap.style.cssText = 'margin:16px 0;'; c.appendChild(towerWrap);
+        const controls = document.createElement('div'); controls.className = 'flex-row mt-16'; controls.style.margin = '16px';
+        controls.innerHTML = `<button class="btn" id="towerStart">Начать</button><button class="btn btn-filled" id="towerCashout" disabled>Забрать</button>`;
+        c.appendChild(controls);
+        const multipliers = [1.3, 1.8, 2.5, 4.0, 6.0];
+        let active = false, currentLevel = 0, betAmount = 0, towerMines = [], gameOver = false;
+
+        function buildTower() {
+            towerWrap.innerHTML = '';
+            for (let level = 4; level >= 0; level--) {
+                const row = document.createElement('div'); row.className = 'tower-row'; row.dataset.level = level;
+                for (let cell = 0; cell < 4; cell++) {
+                    const el = document.createElement('div'); el.className = 'tower-cell'; el.dataset.level = level; el.dataset.cell = cell;
+                    el.innerHTML = `<span class="tower-mult">${multipliers[level]}x</span>`;
+                    el.addEventListener('click', () => onTowerClick(level, cell, el));
+                    if (level > 0) el.classList.add('locked'); row.appendChild(el);
+                }
+                towerWrap.appendChild(row);
+            }
+        }
+
+        function onTowerClick(level, cell, el) {
+            if (!active || gameOver) return;
+            if (level !== currentLevel) return;
+            if (el.classList.contains('safe') || el.classList.contains('bomb')) return;
+            if (towerMines[level] === cell) {
+                gameOver = true; active = false; el.textContent = '💣'; el.classList.add('bomb');
+                towerWrap.querySelectorAll('.tower-cell').forEach(e => {
+                    if (parseInt(e.dataset.level) >= currentLevel) {
+                        const lv = parseInt(e.dataset.level), cl = parseInt(e.dataset.cell);
+                        if (towerMines[lv] === cl && !e.classList.contains('bomb')) { e.textContent = '💣'; e.classList.add('bomb'); }
+                    }
+                });
+                towerWrap.querySelectorAll('.tower-cell').forEach(e => e.classList.add('locked'));
+                showResult(c, '💥 Мина! Потеряно ' + formatNum(betAmount) + ' SPH', 'lose');
+                getEl('towerCashout').disabled = true; getEl('towerStart').disabled = false; return;
+            }
+            el.classList.add('safe'); el.textContent = '💎'; el.classList.remove('locked');
+            if (currentLevel < 4) {
+                const nextRow = towerWrap.querySelectorAll('.tower-row')[4 - (currentLevel + 1)];
+                if (nextRow) nextRow.querySelectorAll('.tower-cell').forEach(e => { e.classList.remove('locked'); e.classList.add('active-level'); });
+                currentLevel++;
+                const cashoutBtn = getEl('towerCashout'); cashoutBtn.disabled = false;
+                cashoutBtn.textContent = 'Забрать ' + formatNum(Math.floor(betAmount * multipliers[currentLevel - 1])) + ' SPH';
+            } else {
+                currentLevel = 5; active = false; gameOver = true;
+                const winAmt = Math.floor(betAmount * multipliers[4]); state.balance += winAmt; saveBalance();
+                showResult(c, '🏆 Вы прошли башню! +' + formatNum(winAmt) + ' SPH', 'win');
+                getEl('towerCashout').disabled = true; getEl('towerStart').disabled = false;
+            }
+        }
+
+        getEl('towerStart').addEventListener('click', () => {
+            if (active) return;
+            const bet = validateBet(); if (!bet) return;
+            betAmount = bet; state.balance -= bet; saveBalance();
+            active = true; gameOver = false; currentLevel = 0; towerMines = [];
+            for (let i = 0; i < 5; i++) towerMines.push(Math.floor(secureRandom() * 4));
+            buildTower();
+            const firstRow = towerWrap.querySelectorAll('.tower-row')[4];
+            if (firstRow) firstRow.querySelectorAll('.tower-cell').forEach(e => { e.classList.remove('locked'); e.classList.add('active-level'); });
+            getEl('towerCashout').disabled = true; getEl('towerCashout').textContent = 'Забрать';
+            getEl('towerStart').disabled = true; const old = c.querySelector('.result-badge'); if (old) old.remove();
+        });
+
+        getEl('towerCashout').addEventListener('click', () => {
+            if (!active || gameOver || currentLevel === 0) return;
+            active = false; gameOver = true;
+            const mult = multipliers[currentLevel - 1], winAmt = Math.floor(betAmount * mult);
+            state.balance += winAmt; saveBalance();
+            showResult(c, '💰 Забрано ' + formatNum(winAmt) + ' SPH', 'win');
+            towerWrap.querySelectorAll('.tower-cell').forEach(e => e.classList.add('locked'));
+            getEl('towerCashout').disabled = true; getEl('towerStart').disabled = false;
+        });
+        buildTower();
+        towerWrap.querySelectorAll('.tower-cell').forEach(e => e.classList.add('locked'));
+        const firstRow = towerWrap.querySelectorAll('.tower-row')[4];
+        if (firstRow) firstRow.querySelectorAll('.tower-cell').forEach(e => e.classList.remove('locked'));
+    }
+
+    // ============ КУБИК ============
+    function renderCube(c) {
+        buildGameHeader(c, 'CUBE', 'Угадайте результат броска.');
+        buildBetInput(c, 100);
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin:0 16px;';
+        wrap.innerHTML = `
+            <div style="display:flex;gap:10px;margin-bottom:16px;">
+                <button class="btn" id="cubeModeExact" style="flex:1;border-color:var(--gold);color:var(--gold);">Точное (5x)</button>
+                <button class="btn" id="cubeModeEven" style="flex:1;">Чёт/Нечет (1.9x)</button>
+                <button class="btn" id="cubeModeOver" style="flex:1;">Больше/Меньше (1.9x)</button>
+            </div>
+            
+            <div id="cubeControlsExact" class="flex-row" style="margin-bottom:16px;">
+                ${[1,2,3,4,5,6].map(n => `<button class="btn cube-num-btn" data-num="${n}" style="padding:12px 0;">${n}</button>`).join('')}
+            </div>
+            
+            <div id="cubeControlsEven" class="hidden flex-row" style="margin-bottom:16px;">
+                <button class="btn cube-even-btn" data-val="even" style="flex:1;">Чёт</button>
+                <button class="btn cube-even-btn" data-val="odd" style="flex:1;">Нечет</button>
+            </div>
+            
+            <div id="cubeControlsOver" class="hidden flex-row" style="margin-bottom:16px;">
+                <button class="btn cube-over-btn" data-val="over" style="flex:1;">Больше (4-6)</button>
+                <button class="btn cube-over-btn" data-val="under" style="flex:1;">Меньше (1-3)</button>
+            </div>
+
+            <div class="cube-result" id="cubeResult">🎲</div>
+            
+            <div class="flex-row mt-16">
+                <button class="btn" id="cubePlay" style="width:100%;">Бросить</button>
+            </div>
+        `;
+        c.appendChild(wrap);
+
+        let mode = 'exact', exactChoice = 1, evenChoice = null, overChoice = null, rolling = false, betAmount = 0;
+        const resEl = getEl('cubeResult'), playBtn = getEl('cubePlay');
+        const modeExactBtn = getEl('cubeModeExact'), modeEvenBtn = getEl('cubeModeEven'), modeOverBtn = getEl('cubeModeOver');
+        const ctrlExact = getEl('cubeControlsExact'), ctrlEven = getEl('cubeControlsEven'), ctrlOver = getEl('cubeControlsOver');
+
+        function updateModeUI() {
+            modeExactBtn.className = mode === 'exact' ? 'btn btn-filled' : 'btn';
+            modeExactBtn.style.flex = '1';
+            modeEvenBtn.className = mode === 'even' ? 'btn btn-filled' : 'btn';
+            modeEvenBtn.style.flex = '1';
+            modeOverBtn.className = mode === 'over' ? 'btn btn-filled' : 'btn';
+            modeOverBtn.style.flex = '1';
+            
+            ctrlExact.classList.toggle('hidden', mode !== 'exact');
+            ctrlEven.classList.toggle('hidden', mode !== 'even');
+            ctrlOver.classList.toggle('hidden', mode !== 'over');
+        }
+
+        modeExactBtn.addEventListener('click', () => { if (rolling) return; mode = 'exact'; updateModeUI(); });
+        modeEvenBtn.addEventListener('click', () => { if (rolling) return; mode = 'even'; updateModeUI(); });
+        modeOverBtn.addEventListener('click', () => { if (rolling) return; mode = 'over'; updateModeUI(); });
+
+        document.querySelectorAll('.cube-num-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (rolling) return;
+                document.querySelectorAll('.cube-num-btn').forEach(b => b.className = 'btn cube-num-btn');
+                btn.className = 'btn btn-filled cube-num-btn'; exactChoice = parseInt(btn.dataset.num, 10);
+            });
+        });
+        document.querySelectorAll('.cube-even-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (rolling) return;
+                document.querySelectorAll('.cube-even-btn').forEach(b => b.className = 'btn cube-even-btn');
+                btn.className = 'btn btn-filled cube-even-btn'; evenChoice = btn.dataset.val;
+            });
+        });
+        document.querySelectorAll('.cube-over-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (rolling) return;
+                document.querySelectorAll('.cube-over-btn').forEach(b => b.className = 'btn cube-over-btn');
+                btn.className = 'btn btn-filled cube-over-btn'; overChoice = btn.dataset.val;
+            });
+        });
+        document.querySelector('.cube-num-btn[data-num="1"]').className = 'btn btn-filled cube-num-btn';
+
+        playBtn.addEventListener('click', () => {
+            if (rolling) return;
+            const bet = validateBet(); if (!bet) return;
+            if (mode === 'exact' && !exactChoice) { showToast('Выберите число!'); return; }
+            if (mode === 'even' && !evenChoice) { showToast('Выберите Чёт/Нечет!'); return; }
+            if (mode === 'over' && !overChoice) { showToast('Выберите Больше/Меньше!'); return; }
+
+            betAmount = bet; state.balance -= bet; saveBalance();
+            rolling = true; playBtn.disabled = true; resEl.textContent = '⏳';
+            const old = c.querySelector('.result-badge'); if (old) old.remove();
+
+            let spins = 0;
+            const spinInterval = setInterval(() => {
+                resEl.textContent = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][Math.floor(secureRandom() * 6)];
+                spins++;
+                if (spins > 15) {
+                    clearInterval(spinInterval);
+                    const result = Math.floor(secureRandom() * 6) + 1;
+                    const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                    resEl.textContent = diceFaces[result - 1];
+                    let win = false, multiplier = 1;
+
+                    if (mode === 'exact') { win = result === exactChoice; multiplier = 5; }
+                    else if (mode === 'even') { const isEven = result % 2 === 0; win = (evenChoice === 'even' && isEven) || (evenChoice === 'odd' && !isEven); multiplier = 1.9; }
+                    else if (mode === 'over') { win = (overChoice === 'over' && result > 3.5) || (overChoice === 'under' && result < 3.5); multiplier = 1.9; }
+
+                    if (win) { const winAmt = Math.floor(betAmount * multiplier); state.balance += winAmt; saveBalance(); showResult(c, `🎉 Выиграло ${result}! +${formatNum(winAmt)} SPH`, 'win'); }
+                    else { showResult(c, `😞 Выпало ${result}. Потеряно ${formatNum(betAmount)} SPH`, 'lose'); }
+                    rolling = false; playBtn.disabled = false;
+                }
+            }, 60);
+            registerCleanup(() => clearInterval(spinInterval));
+        });
+        updateModeUI();
+    }
+
+    // ============ РУЛЕТКА ============
+    function renderRoulette(c) {
+        buildGameHeader(c, 'ROULETTE', 'Настоящая рулетка. Выберите ставку.');
+        buildBetInput(c, 100);
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin:0 16px;';
+        wrap.innerHTML = `
+            <div style="position:relative; margin-bottom:16px;">
+                <div style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent; border-top:24px solid var(--gold); z-index:10; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));"></div>
+                <canvas id="rouletteCanvas" width="600" height="400" style="width:100%; height:auto; display:block; border-radius:12px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.05);"></canvas>
+            </div>
+            
+            <div class="roul-bets-grid">
+                <button class="btn btn-danger" id="roulRed">Красное (x2)</button>
+                <button class="btn" id="roulBlack" style="border-color:#666;color:#ccc;">Черное (x2)</button>
+                <button class="btn" id="roulEven">Чет (x2)</button>
+                <button class="btn" id="roulOdd">Нечет (x2)</button>
+                <button class="btn" id="roulLow">1-18 (x2)</button>
+                <button class="btn" id="roulHigh">19-36 (x2)</button>
+                <button class="btn btn-filled" id="roulDozen1" style="padding:8px;">1-12 (x3)</button>
+                <button class="btn btn-filled" id="roulDozen2" style="padding:8px;">13-24 (x3)</button>
+                <button class="btn btn-filled" id="roulDozen3" style="padding:8px; grid-column: span 2;">25-36 (x3)</button>
+            </div>
+
+            <div class="roul-num-container">
+                <div class="roul-num-title">Точное число (x30)</div>
+                <div class="roul-num-grid" id="roulNumGrid"></div>
+            </div>
+            
+            <button class="btn btn-filled mt-16" id="roulSpin" style="width:100%;">Крутить</button>
+            <div class="result-badge" id="roulResult"></div>
+        `;
+        c.appendChild(wrap);
+
+        const canvas = getEl('rouletteCanvas');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        
+        const redNums = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+        const allNums = Array.from({length: 37}, (_, i) => i);
+        
+        let spinning = false;
+        let betType = null;
+        let selectedNumber = null;
+        let betAmount = 0;
+        let rotation = 0;
+
+        function getColor(n) {
+            if (n === 0) return '#15803d'; 
+            return redNums.includes(n) ? '#b91c1c' : '#111827';
+        }
+
+        function drawWheel(angle) {
+            ctx.clearRect(0, 0, W, H);
+            const centerX = W / 2;
+            const centerY = H / 2;
+            const radius = Math.min(W, H) / 2 - 20;
+
+            const sectorAngle = (Math.PI * 2) / 37;
+            for (let i = 0; i < 37; i++) {
+                const startAngle = angle + i * sectorAngle;
+                const endAngle = startAngle + sectorAngle;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.fillStyle = getColor(i);
+                ctx.fill();
+                ctx.strokeStyle = '#d4af37';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + sectorAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText(i, radius - 10, 0);
+                ctx.restore();
+            }
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 40, 0, Math.PI * 2);
+            ctx.fillStyle = '#0a0f1c';
+            ctx.fill();
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        drawWheel(0);
+
+        const numGrid = getEl('roulNumGrid');
+        allNums.forEach(n => {
+            const btn = document.createElement('button');
+            btn.className = 'roul-num-btn ' + (n === 0 ? 'green' : (redNums.includes(n) ? 'red' : 'black'));
+            btn.textContent = n;
+            btn.addEventListener('click', () => {
+                if (spinning) return;
+                betType = 'number';
+                selectedNumber = n;
+                document.querySelectorAll('.roul-num-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                showToast('Ставка на число ' + n);
+            });
+            numGrid.appendChild(btn);
+        });
+
+        const selectBet = (type, btn) => {
+            if (spinning) return;
+            betType = type;
+            selectedNumber = null;
+            document.querySelectorAll('.roul-num-btn').forEach(b => b.classList.remove('active'));
+            showToast('Ставка сделана');
+        };
+
+        getEl('roulRed').addEventListener('click', (e) => selectBet('red', e.target));
+        getEl('roulBlack').addEventListener('click', (e) => selectBet('black', e.target));
+        getEl('roulEven').addEventListener('click', (e) => selectBet('even', e.target));
+        getEl('roulOdd').addEventListener('click', (e) => selectBet('odd', e.target));
+        getEl('roulLow').addEventListener('click', (e) => selectBet('low', e.target));
+        getEl('roulHigh').addEventListener('click', (e) => selectBet('high', e.target));
+        getEl('roulDozen1').addEventListener('click', (e) => selectBet('dozen1', e.target));
+        getEl('roulDozen2').addEventListener('click', (e) => selectBet('dozen2', e.target));
+        getEl('roulDozen3').addEventListener('click', (e) => selectBet('dozen3', e.target));
+
+        getEl('roulSpin').addEventListener('click', () => {
+            if (spinning) return;
+            if (!betType) { showToast('Выберите ставку!'); return; }
+            
+            const bet = validateBet(); if (!bet) return;
+            betAmount = bet;
+            state.balance -= bet;
+            saveBalance();
+            
+            spinning = true;
+            getEl('roulSpin').disabled = true;
+            const old = c.querySelector('.result-badge'); if (old) old.remove();
+            
+            // 1. Определяем выигрышное число
+            const winNum = Math.floor(secureRandom() * 37);
+            
+            // 2. Вычисляем угол для кручения (5 полных оборотов + нужный сектор)
+            const sectorAngle = (Math.PI * 2) / 37;
+            // Стрелка указывает на 0 (сверху). Чтобы число winNum оказалось под стрелкой,
+            // нужно повернуть колесо на 360 - (winNum * угол сектора)
+            const targetAngleDeg = winNum * (360 / 37);
+            const totalRotationDeg = 360 * 5 + (360 - targetAngleDeg);
+            
+            const startRot = rotation;
+            const endRot = startRot + totalRotationDeg;
+            
+            const duration = 4000;
+            const startTime = performance.now();
+            
+            function animate(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentAngleDeg = startRot + (endRot - startRot) * easeOut;
+                
+                // Конвертируем градусы в радианы для Canvas
+                drawWheel(currentAngleDeg * Math.PI / 180);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    rotation = endRot;
+                    spinning = false;
+                    getEl('roulSpin').disabled = false;
+                    checkWin(winNum);
+                }
+            }
+            requestAnimationFrame(animate);
+        });
+
+        function checkWin(winNum) {
+            let win = false;
+            let mult = 0;
+            let label = '';
+
+            if (winNum === 0) {
+                label = 'Зеро (0)';
+            } else {
+                const isRed = redNums.includes(winNum);
+                const isEven = winNum % 2 === 0;
+                const isLow = winNum <= 18;
+                label = `${winNum} (${isRed ? 'Красное' : 'Черное'})`;
+                
+                if (betType === 'number' && selectedNumber === winNum) { win = true; mult = 30; }
+                else if (betType === 'red' && isRed) { win = true; mult = 2; }
+                else if (betType === 'black' && !isRed) { win = true; mult = 2; }
+                else if (betType === 'even' && isEven) { win = true; mult = 2; }
+                else if (betType === 'odd' && !isEven) { win = true; mult = 2; }
+                else if (betType === 'low' && isLow) { win = true; mult = 2; }
+                else if (betType === 'high' && !isLow) { win = true; mult = 2; }
+                else if (betType === 'dozen1' && winNum >= 1 && winNum <= 12) { win = true; mult = 3; }
+                else if (betType === 'dozen2' && winNum >= 13 && winNum <= 24) { win = true; mult = 3; }
+                else if (betType === 'dozen3' && winNum >= 25 && winNum <= 36) { win = true; mult = 3; }
+            }
+
+            if (win) {
+                const winAmt = Math.floor(betAmount * mult);
+                state.balance += winAmt; saveBalance();
+                showResult(c, `🎉 Выпало ${label}! +${formatNum(winAmt)} SPH`, 'win');
+            } else {
+                showResult(c, `😞 Выпало ${label}. Потеряно ${formatNum(betAmount)} SPH`, 'lose');
+            }
+            betType = null;
+            selectedNumber = null;
+            document.querySelectorAll('.roul-num-btn').forEach(b => b.classList.remove('active'));
+        }
+
+        registerCleanup(() => { spinning = false; });
+    }
+
+    // ============ ДУЭЛЬ ============
+    function renderDuel(c) {
+        buildGameHeader(c, 'DUEL', 'Выбери бойца. Раунд 1: x1.5, Раунд 2: x3.1, Раунд 3: x5. Если твой боец вылетает — ты теряешь ВСЁ.');
+        buildBetInput(c, 100);
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin:0 16px;';
+        wrap.innerHTML = `
+            <div id="duelStartScreen">
+                <div style="font-weight:700;margin-bottom:12px;text-align:center;">Выберите бойца (1-6):</div>
+                <div id="fighterSelectGrid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-bottom:16px;"></div>
+                <button class="btn" id="duelStartBtn" style="width:100%;">Начать бой</button>
+            </div>
+            <div id="duelGameScreen" class="hidden">
+                <div class="ring-container" id="ringContainer"></div>
+                <div class="center mt-16">
+                    <button class="btn" id="duelCashoutBtn" disabled>Забрать (0)</button>
+                </div>
+                <div class="result-badge" id="duelResult"></div>
+            </div>
+        `;
+        c.appendChild(wrap);
+
+        const fightersList = ['Мадумар', 'Миха', 'Лёха', 'Камиль', 'Лёня', 'Илюха'];
+        const avatars = ['💪', '🥊', '🧔', '👨‍🦲', '🧑‍🦱', '👱'];
+        let selectedFighter = null, betAmount = 0, currentRound = 0, roundMult = 0, isPlaying = false;
+        
+        const selectGrid = getEl('fighterSelectGrid');
+        fightersList.forEach((f, i) => {
+            const div = document.createElement('div');
+            div.className = 'game-card'; div.style.padding = '10px';
+            div.innerHTML = `<div style="font-size:28px;">${avatars[i]}</div><div style="font-size:12px;font-weight:bold;margin-top:4px;">${f}</div>`;
+            div.addEventListener('click', () => {
+                if (isPlaying) return;
+                selectedFighter = i;
+                document.querySelectorAll('#fighterSelectGrid .game-card').forEach(el => el.style.borderColor = 'rgba(255,255,255,0.05)');
+                div.style.borderColor = 'var(--gold)';
+            });
+            selectGrid.appendChild(div);
+        });
+
+        function renderRing(fightersAlive) {
+            const ring = getEl('ringContainer');
+            ring.innerHTML = '';
+            fightersAlive.forEach(idx => {
+                const f = document.createElement('div');
+                f.className = 'fighter';
+                f.innerHTML = `<div class="avatar">${avatars[idx]}</div><div>${fightersList[idx]}</div>`;
+                ring.appendChild(f);
+            });
+            return Array.from(ring.children);
+        }
+
+        getEl('duelStartBtn').addEventListener('click', () => {
+            if (selectedFighter === null) { showToast('Выберите бойца!'); return; }
+            const bet = validateBet(); if (!bet) return;
+            
+            betAmount = bet; state.balance -= bet; saveBalance();
+            isPlaying = true; currentRound = 0; roundMult = 0;
+            
+            getEl('duelStartScreen').classList.add('hidden');
+            getEl('duelGameScreen').classList.remove('hidden');
+            getEl('duelCashoutBtn').disabled = true;
+            getEl('duelCashoutBtn').textContent = 'Забрать (0)';
+            getEl('duelResult').textContent = '';
+            
+            startRound([0,1,2,3,4,5]);
+        });
+
+        function startRound(aliveIndices) {
+            currentRound++;
+            const els = renderRing(aliveIndices);
+            const ring = getEl('ringContainer');
+            
+            let fightInterval = setInterval(() => {
+                els.forEach(el => {
+                    if (secureRandom() > 0.5) {
+                        el.classList.add('punch');
+                        setTimeout(() => el.classList.remove('punch'), 300);
+                    }
+                });
+            }, 300);
+
+            let toDropCount = 0;
+            if (currentRound === 1) toDropCount = 2;
+            else if (currentRound === 2) toDropCount = 1;
+            else if (currentRound === 3) toDropCount = 2;
+
+            setTimeout(() => {
+                clearInterval(fightInterval);
+                
+                let dropPool = [...aliveIndices];
+                let dropped = [];
+                for(let i=0; i<toDropCount; i++) {
+                    const rIdx = Math.floor(secureRandom() * dropPool.length);
+                    dropped.push(dropPool[rIdx]);
+                    dropPool.splice(rIdx, 1);
+                }
+
+                els.forEach((el, i) => {
+                    const originalIdx = aliveIndices[i];
+                    if (dropped.includes(originalIdx)) {
+                        el.classList.add('dead');
+                    }
+                });
+
+                setTimeout(() => {
+                    if (dropped.includes(selectedFighter)) {
+                        isPlaying = false;
+                        getEl('duelResult').textContent = `💥 Твой боец вылетел! Ты потерял всё.`;
+                        getEl('duelResult').className = 'result-badge lose-text';
+                        getEl('duelStartScreen').classList.remove('hidden');
+                        getEl('duelGameScreen').classList.add('hidden');
+                        return;
+                    }
+
+                    if (currentRound === 1) {
+                        roundMult = 1.5;
+                        getEl('duelResult').textContent = `Раунд 1 пройден! Доступно: x1.5`;
+                        getEl('duelResult').className = 'result-badge neutral-text';
+                        getEl('duelCashoutBtn').disabled = false;
+                        getEl('duelCashoutBtn').textContent = `Забрать (${formatNum(betAmount * roundMult)} SPH)`;
+                        getEl('duelCashoutBtn').onclick = () => cashoutDuel();
+                        
+                        if (!getEl('duelNextBtn')) {
+                            const nextBtn = document.createElement('button');
+                            nextBtn.id = 'duelNextBtn'; nextBtn.className = 'btn btn-filled'; nextBtn.style.cssText = 'width:100%;margin-top:12px;';
+                            nextBtn.textContent = '➡ Следующий раунд (x3.1)';
+                            nextBtn.onclick = () => {
+                                getEl('duelNextBtn').remove();
+                                startRound(dropPool);
+                            };
+                            ring.parentElement.appendChild(nextBtn);
+                        }
+                    } else if (currentRound === 2) {
+                        roundMult = 3.1;
+                        getEl('duelResult').textContent = `Раунд 2 пройден! Доступно: x3.1`;
+                        getEl('duelResult').className = 'result-badge neutral-text';
+                        getEl('duelCashoutBtn').textContent = `Забрать (${formatNum(betAmount * roundMult)} SPH)`;
+                        
+                        if (!getEl('duelNextBtn')) {
+                            const nextBtn = document.createElement('button');
+                            nextBtn.id = 'duelNextBtn'; nextBtn.className = 'btn btn-filled'; nextBtn.style.cssText = 'width:100%;margin-top:12px;';
+                            nextBtn.textContent = '➡ Финальный раунд (x5)';
+                            nextBtn.onclick = () => {
+                                getEl('duelNextBtn').remove();
+                                startRound(dropPool);
+                            };
+                            ring.parentElement.appendChild(nextBtn);
+                        }
+                    } else if (currentRound === 3) {
+                        roundMult = 5;
+                        isPlaying = false;
+                        const winAmt = Math.floor(betAmount * roundMult);
+                        state.balance += winAmt; saveBalance();
+                        getEl('duelResult').textContent = `🏆 Твой боец выиграл! +${formatNum(winAmt)} SPH`;
+                        getEl('duelResult').className = 'result-badge win-text';
+                        getEl('duelCashoutBtn').disabled = true;
+                        getEl('duelStartScreen').classList.remove('hidden');
+                        setTimeout(() => getEl('duelGameScreen').classList.add('hidden'), 3000);
+                    }
+                }, 1000);
+            }, 2500);
+            
+            registerCleanup(() => clearInterval(fightInterval));
+        }
+
+        function cashoutDuel() {
+            if (!isPlaying) return;
+            isPlaying = false;
+            const winAmt = Math.floor(betAmount * roundMult);
+            state.balance += winAmt; saveBalance();
+            getEl('duelResult').textContent = `💰 Ты забрал ${formatNum(winAmt)} SPH!`;
+            getEl('duelResult').className = 'result-badge win-text';
+            getEl('duelCashoutBtn').disabled = true;
+            if (getEl('duelNextBtn')) getEl('duelNextBtn').remove();
+            setTimeout(() => {
+                getEl('duelStartScreen').classList.remove('hidden');
+                getEl('duelGameScreen').classList.add('hidden');
+            }, 2000);
+        }
+        
+        registerCleanup(() => { isPlaying = false; });
+    }
+
+    // ============ АПГРЕЙДЕР ============
+    function renderUpgrader(c) {
+        buildGameHeader(c, 'UPGRADER', 'Выберите шанс. Если стрелка попадет в золотую зону — победа.');
+        buildBetInput(c, 100);
+
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin:0 16px;';
+        wrap.innerHTML = `
+            <div class="upg-wheel-wrapper">
+                <div class="upg-wheel-bg" id="upgWheelBg"></div>
+                <div class="upg-center">🎯</div>
+                <div class="upg-pointer" id="upgArrow" style="transform: rotate(0deg);"></div>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-weight:600;">
+                <span>Шанс: <span id="upgChanceVal" style="color:var(--gold)">50%</span></span>
+                <span>Множитель: <span id="upgMultVal" style="color:var(--white)">1.90x</span></span>
+            </div>
+            <input type="range" class="dice-slider" id="upgSlider" min="10" max="90" value="50" step="5">
+            
+            <button class="btn mt-16" id="upgPlay" style="width:100%;">Апгрейд</button>
+            <div class="result-badge" id="upgResult"></div>
+        `;
+        c.appendChild(wrap);
+
+        const wheelBg = getEl('upgWheelBg'), arrow = getEl('upgArrow'), slider = getEl('upgSlider');
+        const chanceVal = getEl('upgChanceVal'), multVal = getEl('upgMultVal');
+        let isSpinning = false, betAmount = 0, chance = 50;
+        let currentRotation = 0;
+
+        function updateWheel() {
+            chance = parseInt(slider.value, 10);
+            chanceVal.textContent = chance + '%';
+            let mult = 95 / chance;
+            multVal.textContent = mult.toFixed(2) + 'x';
+            
+            // Круг всегда стоит на месте, меняется только его заливка
+            wheelBg.style.background = `conic-gradient(var(--gold) 0% ${chance}%, #0f1832 ${chance}% 100%)`;
+        }
+
+        slider.addEventListener('input', updateWheel);
+        updateWheel();
+
+        getEl('upgPlay').addEventListener('click', () => {
+            if (isSpinning) return;
+            const bet = validateBet(); if (!bet) return;
+            
+            betAmount = bet; state.balance -= bet; saveBalance();
+            isSpinning = true;
+            getEl('upgPlay').disabled = true;
+            const old = c.querySelector('.result-badge'); if (old) old.remove();
+
+            // Определяем результат ЗАРАНЕЕ
+            const isWin = secureRandom() * 100 < chance;
+            
+            // Вычисляем, куда должна указывать стрелка (0 градусов = верх)
+            // Золотая зона: от 0 до chance * 3.6 градусов (по часовой стрелке от верха)
+            let targetAngleDeg;
+            if (isWin) {
+                targetAngleDeg = secureRandom() * (chance * 3.6);
+            } else {
+                targetAngleDeg = (chance * 3.6) + secureRandom() * (360 - (chance * 3.6));
+            }
+
+            // Стрелка у нас изначально смотрит вправо (0 градусов в CSS), 
+            // а нам нужно, чтобы она смотрела на targetAngleDeg (где 0 = верх).
+            // Поэтому добавляем 90 градусов для компенсации.
+            const baseRot = Math.ceil(currentRotation / 360) * 360;
+            currentRotation = baseRot + 360 * 5 + targetAngleDeg - 90; 
+            
+            arrow.style.transform = `rotate(${currentRotation}deg)`;
+            
+            const onEnd = () => {
+                arrow.removeEventListener('transitionend', onEnd);
+                isSpinning = false;
+                getEl('upgPlay').disabled = false;
+                
+                if (isWin) {
+                    const mult = 95 / chance;
+                    const winAmt = Math.floor(betAmount * mult);
+                    state.balance += winAmt; saveBalance();
+                    showResult(c, `🎉 Успех! ${mult.toFixed(2)}x +${formatNum(winAmt)} SPH`, 'win');
+                } else {
+                    showResult(c, `😞 Промах. Потеряно ${formatNum(betAmount)} SPH`, 'lose');
+                }
+            };
+            
+            arrow.addEventListener('transitionend', onEnd);
+            registerCleanup(() => { arrow.removeEventListener('transitionend', onEnd); });
+        });
+
+        registerCleanup(() => { isSpinning = false; });
+    }
+
+    // ============ LEADERBOARD ============
+    async function fetchLeaderboard() {
+        try {
+            const res = await fetch(CLOUD_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+            const data = await res.json();
+            let arr = data.record;
+            if (typeof arr === 'string') arr = JSON.parse(arr);
+            if (!Array.isArray(arr)) arr = [];
+            arr.sort((a, b) => b.balance - a.balance);
+            return arr.slice(0, 10);
+        } catch (e) {
+            return state.nick ? [{ name: state.nick, balance: state.balance, isMe: true }] : [];
+        }
+    }
+
+    async function savePlayerScore() {
+        if (!state.nick) return;
+        try {
+            const res = await fetch(CLOUD_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+            const data = await res.json();
+            let arr = data.record;
+            if (typeof arr === 'string') arr = JSON.parse(arr);
+            if (!Array.isArray(arr)) arr = [];
+            
+            const myId = state.tgId;
+            let found = arr.find(p => p.id === myId);
+            
+            if (found) {
+                found.balance = state.balance;
+                found.name = state.nick;
+            } else {
+                arr.push({ id: myId, name: state.nick, balance: state.balance });
+            }
+            arr.sort((a, b) => b.balance - a.balance);
+            const top = arr.slice(0, 100);
+            
+            await fetch(CLOUD_URL, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+                body: JSON.stringify(top)
+            });
+        } catch (e) {}
+    }
+
+    async function renderTop(c) {
+        const card = document.createElement('div'); card.className = 'card';
+        card.innerHTML = '<div class="center" style="font-size:20px;font-weight:800;margin-bottom:16px;color:var(--gold);">ТОП-10</div><div id="topList" class="center small-text">Загрузка...</div>';
+        c.appendChild(card);
+        const listEl = card.querySelector('#topList');
+        
+        // ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ
+        const board = await fetchLeaderboard();
+        
+        let html = ''; const medals = ['🥇', '🥈', '🥉'];
+        if (board.length === 0) {
+            html = '<div class="small-text" style="padding:20px;">Пусто. Сыграйте!</div>';
+        } else {
+            board.forEach((p, i) => {
+                const isMe = p.id === state.tgId || p.name === state.nick;
+                const rankDisplay = i < 3 ? medals[i] : (i + 1);
+                html += `<div class="leader-row ${isMe ? 'me' : ''}"><div class="leader-rank">${rankDisplay}</div><div class="leader-name">${p.name}${isMe ? ' (вы)' : ''}</div><div class="leader-balance"><span class="coin-icon" style="width:14px;height:14px;"></span> ${formatNum(p.balance)} SPH</div></div>`;
+            });
+        }
+        listEl.innerHTML = html; listEl.classList.remove('center', 'small-text');
+    }
+
+    // ============ BONUS ============
+    function renderBonus(c) {
+        const card = document.createElement('div'); card.className = 'card bonus-card';
+        card.innerHTML = `
+            <div style="font-size:50px;">🎁</div>
+            <div style="font-size:20px;font-weight:800;margin:10px 0;color:var(--text);">Бонус</div>
+            <div class="small-text">От 7 000 до 10 000 SPH каждый час!</div>
+            <div class="bonus-timer" id="bonusTimer">--:--</div>
+            <button class="btn" id="bonusBtn" style="width:100%;">Забрать</button>`;
+        c.appendChild(card);
+        const timerEl = getEl('bonusTimer'), btn = getEl('bonusBtn');
+        
+        const bonusKey = LS.bonusTime + '_' + state.tgId;
+
+        function updateBonus() {
+            const lastTime = parseInt(localStorage.getItem(bonusKey) || '0', 10);
+            const now = Date.now(), elapsed = now - lastTime, cooldown = 60 * 60 * 1000, remaining = Math.max(0, cooldown - elapsed);
+            if (remaining <= 0) {
+                timerEl.textContent = 'ГОТОВО!'; timerEl.style.color = 'var(--gold)';
+                btn.disabled = false; btn.textContent = 'Забрать';
+            } else {
+                btn.disabled = true; btn.textContent = 'Ожидание';
+                const mins = Math.floor(remaining / 60000), secs = Math.floor((remaining % 60000) / 1000);
+                timerEl.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+                timerEl.style.color = 'var(--text)';
+            }
+        }
+
+        btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            const randomBonus = Math.floor(secureRandom() * 3001) + 7000;
+            localStorage.setItem(bonusKey, String(Date.now()));
+            state.balance += randomBonus; saveBalance(); updateBonus();
+            showToast(`🎁 +${formatNum(randomBonus)} SPH`);
+        });
+        updateBonus();
+        state.bonusInterval = setInterval(updateBonus, 1000);
+        registerCleanup(() => { if (state.bonusInterval) { clearInterval(state.bonusInterval); state.bonusInterval = null; } });
+    }
+
+    // ============ PROFILE ============
+    function renderProfile(c) {
+        const card = document.createElement('div'); card.className = 'card'; card.style.textAlign = 'center';
+        card.innerHTML = `
+            <div class="profile-avatar">${(state.nick || '?')[0].toUpperCase()}</div>
+            <div style="font-size:22px;font-weight:800;margin-bottom:6px;color:var(--text);">${state.nick || 'Гость'}</div>
+            <div style="font-size:16px;color:var(--gold-light);margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:6px;">
+                <span class="coin-icon"></span> ${formatNum(state.balance)} SPH
+            </div>
+            <button class="btn" id="aboutBtn" style="width:100%;">О разработчике</button>`;
+        c.appendChild(card);
+        getEl('aboutBtn').addEventListener('click', () => showAboutModal());
+    }
+
+    function showAboutModal() {
+        const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
+        overlay.innerHTML = `<div class="modal"><h3>Разработчик</h3><p>by bogname<br>Telegram: @bogname<br><br>Создано с любовью для вашего азарта.</p><button class="btn mt-16" id="aboutClose" style="width:100%;">Закрыть</button></div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('#aboutClose').addEventListener('click', () => overlay.remove());
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    }
+
+    document.querySelectorAll('.nav-btn').forEach(btn => { btn.addEventListener('click', () => setScreen(btn.dataset.nav)); });
+
+    async function init() {
+        loadState(); updateHeader();
+        if (window.Telegram && Telegram.WebApp) {
+            try { Telegram.WebApp.ready(); Telegram.WebApp.expand(); } catch (e) {}
+        }
+        const isNotBanned = await checkBan();
+        if (!isNotBanned) return;
+        await syncBalance();
+        renderScreen();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+})();
 </script>
 </body>
 </html>
